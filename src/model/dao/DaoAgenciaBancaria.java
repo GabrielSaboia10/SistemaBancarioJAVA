@@ -1,52 +1,76 @@
 package model.dao;
 
+import java.io.*;
 import java.util.HashSet;
 import java.util.Set;
 
 import model.AgenciaBancaria;
 
 public class DaoAgenciaBancaria {
-	//
-	// ATRIBUTOS
-	//
-	private static Set<AgenciaBancaria> conjAgenciasBancarias = new HashSet<AgenciaBancaria>();
-	
-	//
-	// MÉTODOS
-	//
-	public DaoAgenciaBancaria() {		
+
+	private static final String ARQUIVO = "dados/agencias.dat";
+	private static Set<AgenciaBancaria> conjAgenciasBancarias = null;
+
+	public DaoAgenciaBancaria() {
+		if (conjAgenciasBancarias == null)
+			conjAgenciasBancarias = carregar();
 	}
-	
-	/**
-	 * Método para darmos "persistência" a um novo objeto AgenciaBancaria
-	 * @param p
-	 * @return
-	 */
+
 	public boolean incluir(AgenciaBancaria p) {
-		return DaoAgenciaBancaria.conjAgenciasBancarias.add(p);
+		boolean resultado = conjAgenciasBancarias.add(p);
+		if (resultado) salvar();
+		return resultado;
 	}
-	
+
 	public boolean alterar(AgenciaBancaria p) {
-		return DaoAgenciaBancaria.conjAgenciasBancarias.add(p);
+		removerPorNumero(p.getNumero());
+		boolean resultado = conjAgenciasBancarias.add(p);
+		if (resultado) salvar();
+		return resultado;
 	}
-	
+
 	public boolean remover(AgenciaBancaria p) {
-		return DaoAgenciaBancaria.conjAgenciasBancarias.remove(p);
+		AgenciaBancaria existente = consultarPorNumero(p.getNumero());
+		if (existente != null) {
+			boolean resultado = conjAgenciasBancarias.remove(existente);
+			if (resultado) salvar();
+			return resultado;
+		}
+		return false;
 	}
-	
+
 	public AgenciaBancaria consultarPorNumero(int numero) {
-		for(AgenciaBancaria c : DaoAgenciaBancaria.conjAgenciasBancarias) 
-			if(c.getNumero() == numero)
-				return c;
+		for (AgenciaBancaria a : conjAgenciasBancarias)
+			if (a.getNumero() == numero)
+				return a;
 		return null;
 	}
-	
+
 	public AgenciaBancaria[] consultarTodos() {
-		int numElementos = DaoAgenciaBancaria.conjAgenciasBancarias.size();
-		AgenciaBancaria[] arrayRetorno = new AgenciaBancaria[numElementos];
-		int i = 0;
-		for(AgenciaBancaria p : DaoAgenciaBancaria.conjAgenciasBancarias) 
-			arrayRetorno[i++] = p;
-		return arrayRetorno;
+		return conjAgenciasBancarias.toArray(new AgenciaBancaria[0]);
+	}
+
+	private void removerPorNumero(int numero) {
+		conjAgenciasBancarias.removeIf(a -> a.getNumero() == numero);
+	}
+
+	@SuppressWarnings("unchecked")
+	private Set<AgenciaBancaria> carregar() {
+		File f = new File(ARQUIVO);
+		if (!f.exists()) return new HashSet<>();
+		try (ObjectInputStream ois = new ObjectInputStream(new FileInputStream(f))) {
+			return (Set<AgenciaBancaria>) ois.readObject();
+		} catch (Exception e) {
+			return new HashSet<>();
+		}
+	}
+
+	private void salvar() {
+		new File("dados").mkdirs();
+		try (ObjectOutputStream oos = new ObjectOutputStream(new FileOutputStream(ARQUIVO))) {
+			oos.writeObject(conjAgenciasBancarias);
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
 	}
 }

@@ -1,52 +1,72 @@
 package model.dao;
 
+import java.io.*;
 import java.util.HashSet;
 import java.util.Set;
 
 import model.Pessoa;
 
 public class DaoPessoa {
-	//
-	// ATRIBUTOS
-	//
-	private static Set<Pessoa> conjPessoas = new HashSet<Pessoa>();
-	
-	//
-	// MÉTODOS
-	//
-	public DaoPessoa() {		
+
+	private static final String ARQUIVO = "dados/pessoas.dat";
+	private static Set<Pessoa> conjPessoas = null;
+
+	public DaoPessoa() {
+		if (conjPessoas == null)
+			conjPessoas = carregar();
 	}
-	
-	/**
-	 * Método para darmos "persistência" a um novo objeto Pessoa
-	 * @param p
-	 * @return
-	 */
+
 	public boolean incluir(Pessoa p) {
-		return DaoPessoa.conjPessoas.add(p);
+		boolean resultado = conjPessoas.add(p);
+		if (resultado) salvar();
+		return resultado;
 	}
-	
+
 	public boolean alterar(Pessoa p) {
-		return DaoPessoa.conjPessoas.add(p);
+		removerPorCpf(p.getCpf());
+		boolean resultado = conjPessoas.add(p);
+		if (resultado) salvar();
+		return resultado;
 	}
-	
+
 	public boolean remover(Pessoa p) {
-		return DaoPessoa.conjPessoas.remove(p);
+		boolean resultado = conjPessoas.remove(p);
+		if (resultado) salvar();
+		return resultado;
 	}
-	
+
 	public Pessoa consultarPorCpf(String cpf) {
-		for(Pessoa p : DaoPessoa.conjPessoas) 
-			if(p.getCpf().equals(cpf))
+		for (Pessoa p : conjPessoas)
+			if (p.getCpf().equals(cpf))
 				return p;
 		return null;
 	}
-	
+
 	public Pessoa[] consultarTodos() {
-		int numElementos = DaoPessoa.conjPessoas.size();
-		Pessoa[] arrayRetorno = new Pessoa[numElementos];
-		int i = 0;
-		for(Pessoa p : DaoPessoa.conjPessoas) 
-			arrayRetorno[i++] = p;
-		return arrayRetorno;
+		return conjPessoas.toArray(new Pessoa[0]);
+	}
+
+	private void removerPorCpf(String cpf) {
+		conjPessoas.removeIf(p -> p.getCpf().equals(cpf));
+	}
+
+	@SuppressWarnings("unchecked")
+	private Set<Pessoa> carregar() {
+		File f = new File(ARQUIVO);
+		if (!f.exists()) return new HashSet<>();
+		try (ObjectInputStream ois = new ObjectInputStream(new FileInputStream(f))) {
+			return (Set<Pessoa>) ois.readObject();
+		} catch (Exception e) {
+			return new HashSet<>();
+		}
+	}
+
+	private void salvar() {
+		new File("dados").mkdirs();
+		try (ObjectOutputStream oos = new ObjectOutputStream(new FileOutputStream(ARQUIVO))) {
+			oos.writeObject(conjPessoas);
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
 	}
 }

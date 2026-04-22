@@ -1,62 +1,80 @@
 package model.dao;
 
+import java.io.*;
 import java.util.HashSet;
 import java.util.Set;
 
 import model.ContaBancaria;
 
 public class DaoContaBancaria {
-	//
-	// ATRIBUTOS
-	//
-	private static Set<ContaBancaria> conjContasBancarias = new HashSet<ContaBancaria>();
-	
-	//
-	// MÉTODOS
-	//
-	public DaoContaBancaria() {		
+
+	private static final String ARQUIVO = "dados/contas.dat";
+	private static Set<ContaBancaria> conjContasBancarias = null;
+
+	public DaoContaBancaria() {
+		if (conjContasBancarias == null)
+			conjContasBancarias = carregar();
 	}
-	
-	/**
-	 * Método para darmos "persistência" a um novo objeto ContaBancaria
-	 * @param p
-	 * @return
-	 */
+
 	public boolean incluir(ContaBancaria p) {
-		return DaoContaBancaria.conjContasBancarias.add(p);
+		boolean resultado = conjContasBancarias.add(p);
+		if (resultado) salvar();
+		return resultado;
 	}
-	
+
 	public boolean alterar(ContaBancaria p) {
-		return DaoContaBancaria.conjContasBancarias.add(p);
+		removerPorNumero(p.getNumContaCorrente());
+		boolean resultado = conjContasBancarias.add(p);
+		if (resultado) salvar();
+		return resultado;
 	}
-	
-//	public boolean remover(ContaBancaria p) {
-//		return DaoContaBancaria.conjContasBancarias.remove(p);
-//	}
-	
-    public boolean remover(ContaBancaria p) {
-        // 1) Localiza no conjunto a conta que já está armazenada
-        ContaBancaria contaExistente = this.consultarPorNumero(p.getNumContaCorrente());
-        if (contaExistente != null) {
-            // 2) Remove a mesma instância que tá armazenada
-            return DaoContaBancaria.conjContasBancarias.remove(contaExistente);
-        }
-        return false;
-    }
-	
+
+	public boolean remover(ContaBancaria p) {
+		ContaBancaria existente = consultarPorNumero(p.getNumContaCorrente());
+		if (existente != null) {
+			boolean resultado = conjContasBancarias.remove(existente);
+			if (resultado) salvar();
+			return resultado;
+		}
+		return false;
+	}
+
 	public ContaBancaria consultarPorNumero(int numero) {
-		for(ContaBancaria c : DaoContaBancaria.conjContasBancarias) 
-			if(c.getNumContaCorrente() == numero)
+		for (ContaBancaria c : conjContasBancarias)
+			if (c.getNumContaCorrente() == numero)
 				return c;
 		return null;
 	}
-	
+
 	public ContaBancaria[] consultarTodos() {
-		int numElementos = DaoContaBancaria.conjContasBancarias.size();
-		ContaBancaria[] arrayRetorno = new ContaBancaria[numElementos];
-		int i = 0;
-		for(ContaBancaria p : DaoContaBancaria.conjContasBancarias) 
-			arrayRetorno[i++] = p;
-		return arrayRetorno;
+		return conjContasBancarias.toArray(new ContaBancaria[0]);
+	}
+
+	public void salvarEstado() {
+		salvar();
+	}
+
+	private void removerPorNumero(int numero) {
+		conjContasBancarias.removeIf(c -> c.getNumContaCorrente() == numero);
+	}
+
+	@SuppressWarnings("unchecked")
+	private Set<ContaBancaria> carregar() {
+		File f = new File(ARQUIVO);
+		if (!f.exists()) return new HashSet<>();
+		try (ObjectInputStream ois = new ObjectInputStream(new FileInputStream(f))) {
+			return (Set<ContaBancaria>) ois.readObject();
+		} catch (Exception e) {
+			return new HashSet<>();
+		}
+	}
+
+	private void salvar() {
+		new File("dados").mkdirs();
+		try (ObjectOutputStream oos = new ObjectOutputStream(new FileOutputStream(ARQUIVO))) {
+			oos.writeObject(conjContasBancarias);
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
 	}
 }
