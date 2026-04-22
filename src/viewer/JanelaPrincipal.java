@@ -1,73 +1,81 @@
 package viewer;
 
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
+import java.awt.*;
+import java.awt.event.*;
+import javax.swing.*;
+import javax.swing.border.*;
 
-import javax.swing.JButton;
-import javax.swing.JFrame;
-import javax.swing.JPanel;
-import javax.swing.border.EmptyBorder;
 import controller.CtrlPrograma;
 
 public class JanelaPrincipal extends JanelaAbstrata {
 
 	private static final long serialVersionUID = 1L;
-	private JPanel contentPane;
 
-	/**
-	 * Create the frame.
-	 */
 	public JanelaPrincipal(CtrlPrograma c) {
 		super(c);
-		setTitle("Menu Principal");
+		setTitle("Sistema Bancário");
 		setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-		setBounds(100, 100, 543, 249);
-		contentPane = new JPanel();
-		contentPane.setBorder(new EmptyBorder(5, 5, 5, 5));
+		setSize(480, 340);
+		setLocationRelativeTo(null);
 
+		JPanel contentPane = new JPanel(new BorderLayout());
+		contentPane.setBackground(new Color(245, 247, 250));
 		setContentPane(contentPane);
-		contentPane.setLayout(null);
-		
-		JButton btIncluirPessoa = new JButton("CRUD Pessoa");
-		btIncluirPessoa.addActionListener(new ActionListener() {
-			public void actionPerformed(ActionEvent e) {
-				CtrlPrograma ctrl = (CtrlPrograma)getCtrl();
-				ctrl.iniciarCrudPessoa();
-			}
-		});
-		btIncluirPessoa.setBounds(10, 11, 227, 63);
-		contentPane.add(btIncluirPessoa);
-		
-		JButton btIncluirContaBancaria = new JButton("CRUD Conta Bancária");
-		btIncluirContaBancaria.addActionListener(new ActionListener() {
-			public void actionPerformed(ActionEvent e) {
-				CtrlPrograma ctrl = (CtrlPrograma)getCtrl();
-				ctrl.iniciarCrudContaBancaria();
-				//ctrl.iniciarIncluirContaBancaria();
-			}
-		});
-		btIncluirContaBancaria.setBounds(268, 11, 227, 63);
-		contentPane.add(btIncluirContaBancaria);
-		
-		JButton btSair = new JButton("Sair");
-		btSair.addActionListener(new ActionListener() {
-			public void actionPerformed(ActionEvent e) {
-				CtrlPrograma ctrl = (CtrlPrograma)getCtrl();
-				ctrl.finalizar();
-			}
-		});
-		btSair.setBounds(268, 114, 227, 63);
-		contentPane.add(btSair);
-		
-		JButton btnIncluirAgnciaBancria = new JButton("CRUD Agência Bancária");
-		btnIncluirAgnciaBancria.addActionListener(new ActionListener() {
-			public void actionPerformed(ActionEvent e) {
-				CtrlPrograma ctrl = (CtrlPrograma) getCtrl();
-				ctrl.iniciarIncluirCrudAgenciaBancaria();
-			}
-		});
-		btnIncluirAgnciaBancria.setBounds(10, 114, 227, 63);
-		contentPane.add(btnIncluirAgnciaBancria);
-		this.setVisible(true);
+
+		JLabel titulo = new JLabel("Sistema Bancário", SwingConstants.CENTER);
+		titulo.setFont(new Font("SansSerif", Font.BOLD, 22));
+		titulo.setForeground(new Color(30, 80, 160));
+		titulo.setBorder(new EmptyBorder(24, 0, 8, 0));
+		contentPane.add(titulo, BorderLayout.NORTH);
+
+		JPanel grid = new JPanel(new GridLayout(2, 2, 14, 14));
+		grid.setBackground(new Color(245, 247, 250));
+		grid.setBorder(new EmptyBorder(10, 40, 10, 40));
+
+		JButton btPessoa = criarBotao("Pessoas", new Color(52, 120, 210));
+		btPessoa.addActionListener(e -> ((CtrlPrograma) getCtrl()).iniciarCrudPessoa());
+
+		JButton btConta = criarBotao("Contas Bancárias", new Color(52, 120, 210));
+		btConta.addActionListener(e -> ((CtrlPrograma) getCtrl()).iniciarCrudContaBancaria());
+
+		JButton btAgencia = criarBotao("Agências Bancárias", new Color(52, 120, 210));
+		btAgencia.addActionListener(e -> ((CtrlPrograma) getCtrl()).iniciarIncluirCrudAgenciaBancaria());
+
+		JButton btOperacoes = criarBotao("Operações Bancárias", new Color(34, 150, 100));
+		btOperacoes.addActionListener(e -> ((CtrlPrograma) getCtrl()).iniciarOperacoesBancarias());
+
+		grid.add(btPessoa);
+		grid.add(btConta);
+		grid.add(btAgencia);
+		grid.add(btOperacoes);
+		contentPane.add(grid, BorderLayout.CENTER);
+
+		JButton btSair = new JButton("Sair do Sistema");
+		btSair.setFont(new Font("SansSerif", Font.PLAIN, 13));
+		btSair.setBackground(new Color(200, 60, 60));
+		btSair.setForeground(Color.WHITE);
+		btSair.setFocusPainted(false);
+		btSair.setBorder(new EmptyBorder(10, 0, 10, 0));
+		btSair.setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
+		btSair.addActionListener(e -> ((CtrlPrograma) getCtrl()).finalizar());
+
+		JPanel rodape = new JPanel(new BorderLayout());
+		rodape.setBackground(new Color(245, 247, 250));
+		rodape.setBorder(new EmptyBorder(0, 40, 20, 40));
+		rodape.add(btSair, BorderLayout.CENTER);
+		contentPane.add(rodape, BorderLayout.SOUTH);
+
+		setVisible(true);
+	}
+
+	private JButton criarBotao(String texto, Color cor) {
+		JButton btn = new JButton("<html><center>" + texto + "</center></html>");
+		btn.setFont(new Font("SansSerif", Font.BOLD, 14));
+		btn.setBackground(cor);
+		btn.setForeground(Color.WHITE);
+		btn.setFocusPainted(false);
+		btn.setBorderPainted(false);
+		btn.setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
+		return btn;
 	}
 }
