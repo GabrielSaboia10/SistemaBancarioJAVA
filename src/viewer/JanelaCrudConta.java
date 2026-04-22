@@ -1,12 +1,9 @@
 package viewer;
 
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
-
-import javax.swing.JButton;
-import javax.swing.JFrame;
-import javax.swing.JPanel;
-import javax.swing.border.EmptyBorder;
+import java.awt.*;
+import java.awt.event.*;
+import javax.swing.*;
+import javax.swing.border.*;
 
 import controller.CtrlCrudConta;
 import controller.ICtrl;
@@ -14,77 +11,65 @@ import controller.ICtrl;
 public class JanelaCrudConta extends JanelaAbstrata {
 
 	private static final long serialVersionUID = 1L;
-	private JPanel contentPane;
 
 	public JanelaCrudConta(ICtrl c) {
 		super(c);
-		setTitle("JANELA CRUD ContaBancaria");
+		setTitle("Gerenciar Contas Bancárias");
 		setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-		setBounds(100, 100, 461, 348);
-		contentPane = new JPanel();
-		contentPane.setBorder(new EmptyBorder(5, 5, 5, 5));
+		setSize(440, 360);
+		setLocationRelativeTo(null);
 
+		JPanel contentPane = new JPanel(new BorderLayout());
+		contentPane.setBackground(new Color(245, 247, 250));
 		setContentPane(contentPane);
-		contentPane.setLayout(null);
-		
-		JButton btnIncluirContaBancaria = new JButton("Incluir Conta Bancaria");
-		btnIncluirContaBancaria.addActionListener(new ActionListener() {
-			public void actionPerformed(ActionEvent e) {
-				CtrlCrudConta ctrl = (CtrlCrudConta)getCtrl();
-				ctrl.iniciarIncluirContaBancaria();
-			}
-		});
-		btnIncluirContaBancaria.setBounds(10, 11, 160, 63);
-		contentPane.add(btnIncluirContaBancaria);
-		
-		JButton btnAlterarContaBancaria = new JButton("Alterar Conta Bancaria");
-		btnAlterarContaBancaria.addActionListener(new ActionListener() {
-			public void actionPerformed(ActionEvent e) {
-				CtrlCrudConta ctrl = (CtrlCrudConta)getCtrl();
-				ctrl.iniciarAlterarConta();
-			}
-		});
-		btnAlterarContaBancaria.setBounds(260, 11, 160, 63);
-		contentPane.add(btnAlterarContaBancaria);
-		
-		JButton btnDeletarContaBancaria = new JButton("Deletar Conta Bancaria");
-		btnDeletarContaBancaria.addActionListener(new ActionListener() {
-			public void actionPerformed(ActionEvent e) {
-				CtrlCrudConta ctrl = (CtrlCrudConta)getCtrl();
-				ctrl.iniciarExcluirConta();
-			}
-		});
-		btnDeletarContaBancaria.setBounds(10, 89, 160, 63);
-		contentPane.add(btnDeletarContaBancaria);
-		
-		JButton btnSelecionarContaBancaria = new JButton("Selecionar Conta Bancaria");
-		btnSelecionarContaBancaria.addActionListener(new ActionListener() {
-			public void actionPerformed(ActionEvent e) {
-				CtrlCrudConta ctrl = (CtrlCrudConta)getCtrl();
-				ctrl.iniciarSelecionarConta();
-			}
-		});
-		btnSelecionarContaBancaria.setBounds(260, 89, 160, 63);
-		contentPane.add(btnSelecionarContaBancaria);
-		
-		JButton btnVoltar = new JButton("Voltar");
-		btnVoltar.addActionListener(new ActionListener() {
-			public void actionPerformed(ActionEvent e) {
-				CtrlCrudConta ctrl = (CtrlCrudConta)getCtrl();
-				ctrl.finalizar();
-			}
-		});
-		btnVoltar.setBounds(10, 244, 410, 39);
-		contentPane.add(btnVoltar);
-		
-		JButton btnSelecionarTodasAs = new JButton("Selecionar Todas as Conta Bancarias");
-		btnSelecionarTodasAs.addActionListener(new ActionListener() {
-			public void actionPerformed(ActionEvent e) {
-				CtrlCrudConta ctrl = (CtrlCrudConta)getCtrl();
-				ctrl.iniciarSelecionarTodasContas();
-			}
-		});
-		btnSelecionarTodasAs.setBounds(10, 176, 410, 46);
-		contentPane.add(btnSelecionarTodasAs);
+
+		JLabel titulo = new JLabel("Gerenciar Contas Bancárias", SwingConstants.CENTER);
+		titulo.setFont(new Font("SansSerif", Font.BOLD, 20));
+		titulo.setForeground(new Color(30, 80, 160));
+		titulo.setBorder(new EmptyBorder(20, 0, 10, 0));
+		contentPane.add(titulo, BorderLayout.NORTH);
+
+		JPanel grid = new JPanel(new GridLayout(3, 2, 12, 12));
+		grid.setBackground(new Color(245, 247, 250));
+		grid.setBorder(new EmptyBorder(10, 30, 10, 30));
+
+		JButton btnIncluir = criarBotao("Incluir Conta", new Color(52, 120, 210));
+		btnIncluir.addActionListener(e -> ((CtrlCrudConta) getCtrl()).iniciarIncluirContaBancaria());
+
+		JButton btnAlterar = criarBotao("Alterar Conta", new Color(52, 120, 210));
+		btnAlterar.addActionListener(e -> ((CtrlCrudConta) getCtrl()).iniciarAlterarConta());
+
+		JButton btnDeletar = criarBotao("Excluir Conta", new Color(200, 60, 60));
+		btnDeletar.addActionListener(e -> ((CtrlCrudConta) getCtrl()).iniciarExcluirConta());
+
+		JButton btnSelecionar = criarBotao("Buscar Conta", new Color(52, 120, 210));
+		btnSelecionar.addActionListener(e -> ((CtrlCrudConta) getCtrl()).iniciarSelecionarConta());
+
+		JButton btnTodas = criarBotao("Listar Todas", new Color(34, 150, 100));
+		btnTodas.addActionListener(e -> ((CtrlCrudConta) getCtrl()).iniciarSelecionarTodasContas());
+
+		JButton btnVoltar = criarBotao("Voltar", new Color(120, 120, 120));
+		btnVoltar.addActionListener(e -> ((CtrlCrudConta) getCtrl()).finalizar());
+
+		grid.add(btnIncluir);
+		grid.add(btnAlterar);
+		grid.add(btnDeletar);
+		grid.add(btnSelecionar);
+		grid.add(btnTodas);
+		grid.add(btnVoltar);
+
+		contentPane.add(grid, BorderLayout.CENTER);
+		contentPane.add(new JPanel() {{ setBackground(new Color(245, 247, 250)); setBorder(new EmptyBorder(10, 0, 10, 0)); }}, BorderLayout.SOUTH);
+	}
+
+	private JButton criarBotao(String texto, Color cor) {
+		JButton btn = new JButton(texto);
+		btn.setFont(new Font("SansSerif", Font.BOLD, 13));
+		btn.setBackground(cor);
+		btn.setForeground(Color.WHITE);
+		btn.setFocusPainted(false);
+		btn.setBorderPainted(false);
+		btn.setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
+		return btn;
 	}
 }
