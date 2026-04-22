@@ -1,6 +1,9 @@
 package model;
 
-public class AgenciaBancaria {
+import java.io.Serializable;
+
+public class AgenciaBancaria implements Serializable {
+	private static final long serialVersionUID = 1L;
 	//
 	// CONSTANTES
 	//

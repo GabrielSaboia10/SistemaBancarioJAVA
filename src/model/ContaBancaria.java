@@ -1,6 +1,9 @@
 package model;
 
-public class ContaBancaria {
+import java.io.Serializable;
+
+public class ContaBancaria implements Serializable {
+	private static final long serialVersionUID = 1L;
 
 	//
 	// LEMBRE-SE! 'this' é a referência para o objeto que estiver
@@ -118,6 +121,27 @@ public class ContaBancaria {
 	public static void validarAgencia(AgenciaBancaria agencia) throws ModelException {
 		if(agencia == null)
 			throw new ModelException("É obrigatório indicar qual é a agência da conta");
+	}
+
+	public void depositar(double valor) throws ModelException {
+		if (valor <= 0)
+			throw new ModelException("O valor do depósito deve ser positivo: " + valor);
+		this.saldo += valor;
+	}
+
+	public void sacar(double valor) throws ModelException {
+		if (valor <= 0)
+			throw new ModelException("O valor do saque deve ser positivo: " + valor);
+		double novoSaldo = this.saldo - valor;
+		ContaBancaria.validarSaldo(novoSaldo, this.limiteChequeEspecial);
+		this.saldo = novoSaldo;
+	}
+
+	public void transferir(double valor, ContaBancaria destino) throws ModelException {
+		if (destino == null)
+			throw new ModelException("A conta de destino não pode ser nula");
+		this.sacar(valor);
+		destino.depositar(valor);
 	}
 }
 
