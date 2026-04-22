@@ -1,15 +1,9 @@
 package viewer;
 
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
-
-import javax.swing.JButton;
-import javax.swing.JFrame;
-import javax.swing.JLabel;
-import javax.swing.JOptionPane;
-import javax.swing.JPanel;
-import javax.swing.JTextField;
-import javax.swing.border.EmptyBorder;
+import java.awt.*;
+import java.awt.event.*;
+import javax.swing.*;
+import javax.swing.border.*;
 
 import controller.CtrlAbstratoPessoa;
 import controller.CtrlAlterarPessoa;
@@ -20,144 +14,125 @@ import controller.CtrlSelecionarPessoa;
 public class JanelaPessoa extends JanelaAbstrata {
 
 	private static final long serialVersionUID = 1L;
-	//
-	// ATRIBUTOS (Componentes Gráficos)
-	//
-	private JPanel contentPane;
+
 	private JTextField tfCpf;
 	private JTextField tfNome;
 	private JTextField tfIdade;
 	private JButton btProcurarCpf;
-	private JButton btOk;
-	private JButton btCancelar;
-	private boolean pessoaEscolhida;
+	private boolean pessoaEscolhida = false;
 
-	/**
-	 * Create the frame.
-	 */
 	public JanelaPessoa(CtrlAbstratoPessoa c) {
 		super(c);
-
-		// Definimos o content pane da janela
 		setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-		setBounds(100, 100, 450, 300);
-		contentPane = new JPanel();
-		contentPane.setBorder(new EmptyBorder(5, 5, 5, 5));
+		setSize(420, 320);
+		setLocationRelativeTo(null);
 
+		if (getCtrl() instanceof CtrlIncluirPessoa)        setTitle("Incluir Pessoa");
+		else if (getCtrl() instanceof CtrlExcluirPessoa)   setTitle("Excluir Pessoa");
+		else if (getCtrl() instanceof CtrlAlterarPessoa)   setTitle("Alterar Pessoa");
+		else if (getCtrl() instanceof CtrlSelecionarPessoa) setTitle("Buscar Pessoa");
+
+		JPanel contentPane = new JPanel(new BorderLayout());
+		contentPane.setBackground(new Color(245, 247, 250));
 		setContentPane(contentPane);
-		contentPane.setLayout(null);
 
-		// Vou redundantemente indicar que o atributo
-		// "pessoaEscolhida" é igual a "false", pois, no início
-		// o usuário ainda não indicou a pessoa a ser alterada
-		this.pessoaEscolhida = false;
-		// Verificando qual é o controlador dessa janela
+		JLabel titulo = new JLabel(getTitle(), SwingConstants.CENTER);
+		titulo.setFont(new Font("SansSerif", Font.BOLD, 18));
+		titulo.setForeground(new Color(30, 80, 160));
+		titulo.setBorder(new EmptyBorder(18, 0, 10, 0));
+		contentPane.add(titulo, BorderLayout.NORTH);
 
-		if ((getCtrl() instanceof CtrlIncluirPessoa)) {
-			setTitle("Incluir Pessoa");
-		} else {
-			configurarBotaoProcurarCpf();
-			if (getCtrl() instanceof CtrlExcluirPessoa)
-				setTitle("Excluir Pessoa");
-			else if (getCtrl() instanceof CtrlAlterarPessoa)
-				setTitle("Alterar Pessoa");
-			else if (getCtrl() instanceof CtrlSelecionarPessoa)
-				setTitle("Selecionar Pessoa Especificas");
+		JPanel form = new JPanel(new GridBagLayout());
+		form.setBackground(new Color(245, 247, 250));
+		form.setBorder(new EmptyBorder(0, 30, 0, 30));
+		GridBagConstraints gbc = new GridBagConstraints();
+		gbc.insets = new Insets(8, 6, 8, 6);
+		gbc.anchor = GridBagConstraints.WEST;
+
+		tfCpf = new JTextField(16);
+		tfNome = new JTextField(20);
+		tfIdade = new JTextField(6);
+
+		adicionarCampo(form, gbc, "CPF:", tfCpf, 0);
+		adicionarCampo(form, gbc, "Nome:", tfNome, 1);
+		adicionarCampo(form, gbc, "Idade:", tfIdade, 2);
+
+		if (!(getCtrl() instanceof CtrlIncluirPessoa)) {
+			btProcurarCpf = new JButton("Buscar por CPF");
+			estilizarBotao(btProcurarCpf, new Color(52, 120, 210));
+			btProcurarCpf.addActionListener(e -> {
+				CtrlAbstratoPessoa ctrl = (CtrlAbstratoPessoa) getCtrl();
+				ctrl.procurarPessoaComCpf(tfCpf.getText());
+			});
+			gbc.gridx = 1; gbc.gridy = 3; gbc.fill = GridBagConstraints.HORIZONTAL;
+			form.add(btProcurarCpf, gbc);
 		}
 
-		JLabel lblNewLabel = new JLabel("CPF:");
-		lblNewLabel.setBounds(39, 37, 46, 14);
-		contentPane.add(lblNewLabel);
+		contentPane.add(form, BorderLayout.CENTER);
 
-		tfCpf = new JTextField();
-		tfCpf.setBounds(88, 34, 186, 20);
-		contentPane.add(tfCpf);
-		tfCpf.setColumns(10);
+		JPanel botoes = new JPanel(new FlowLayout(FlowLayout.CENTER, 16, 12));
+		botoes.setBackground(new Color(245, 247, 250));
 
-		JLabel lblNewLabel_1 = new JLabel("Nome:");
-		lblNewLabel_1.setBounds(39, 86, 46, 14);
-		contentPane.add(lblNewLabel_1);
+		JButton btOk = new JButton("Confirmar");
+		estilizarBotao(btOk, new Color(34, 150, 100));
+		btOk.addActionListener(e -> confirmar());
 
-		JLabel lblNewLabel_2 = new JLabel("Idade:");
-		lblNewLabel_2.setBounds(39, 137, 46, 14);
-		contentPane.add(lblNewLabel_2);
+		JButton btCancelar = new JButton("Cancelar");
+		estilizarBotao(btCancelar, new Color(120, 120, 120));
+		btCancelar.addActionListener(e -> ((CtrlAbstratoPessoa) getCtrl()).finalizar());
 
-		tfNome = new JTextField();
-		tfNome.setBounds(88, 83, 288, 20);
-		contentPane.add(tfNome);
-		tfNome.setColumns(10);
+		botoes.add(btOk);
+		botoes.add(btCancelar);
+		contentPane.add(botoes, BorderLayout.SOUTH);
 
-		tfIdade = new JTextField();
-		tfIdade.setBounds(88, 134, 86, 20);
-		contentPane.add(tfIdade);
-		tfIdade.setColumns(10);
+		setVisible(true);
+	}
 
-		btOk = new JButton("Ok");
-		btOk.addActionListener(new ActionListener() {
-			public void actionPerformed(ActionEvent e) {
-				// Se a pessoa a ser alterada ainda não foi escolhida, saímos.
-				if ((getCtrl() instanceof CtrlAlterarPessoa || getCtrl() instanceof CtrlExcluirPessoa)
-						&& !pessoaEscolhida) {
-					JOptionPane.showMessageDialog(null, "Você ainda não definiu qual é a Pessoa a ser alterada!");
-					return;
-				}
-				// Recuperando os dados preenchidos pelo usuário
-				String cpf = tfCpf.getText(); // 123.123.123-12
-				String nome = tfNome.getText();
-				String aux = tfIdade.getText();
-				int idade;
-				try {
-					idade = Integer.parseInt(aux);
-				} catch (NumberFormatException nfe) {
-					JOptionPane.showMessageDialog(null, "Idade Inválida: " + aux);
-					return;
-				}
+	private void adicionarCampo(JPanel form, GridBagConstraints gbc, String label, JTextField tf, int row) {
+		gbc.gridx = 0; gbc.gridy = row; gbc.fill = GridBagConstraints.NONE;
+		JLabel lbl = new JLabel(label);
+		lbl.setFont(new Font("SansSerif", Font.BOLD, 13));
+		form.add(lbl, gbc);
+		gbc.gridx = 1; gbc.fill = GridBagConstraints.HORIZONTAL;
+		tf.setFont(new Font("SansSerif", Font.PLAIN, 13));
+		form.add(tf, gbc);
+	}
 
-				// Informando ao controlador do caso de uso que ele
-				// deve efetuar a efetuar a operação com a pessoa
-				CtrlAbstratoPessoa ctrl = (CtrlAbstratoPessoa) getCtrl();
-				ctrl.efetuar(cpf, nome, idade);
-			}
-		});
-		btOk.setBounds(85, 200, 89, 23);
-		contentPane.add(btOk);
+	private void estilizarBotao(JButton btn, Color cor) {
+		btn.setFont(new Font("SansSerif", Font.BOLD, 13));
+		btn.setBackground(cor);
+		btn.setForeground(Color.WHITE);
+		btn.setFocusPainted(false);
+		btn.setBorderPainted(false);
+		btn.setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
+		btn.setPreferredSize(new Dimension(130, 36));
+	}
 
-		btCancelar = new JButton("Cancelar");
-		btCancelar.addActionListener(new ActionListener() {
-			public void actionPerformed(ActionEvent e) {
-				CtrlAbstratoPessoa ctrl = (CtrlAbstratoPessoa) getCtrl();
-				ctrl.finalizar();
-			}
-		});
-		btCancelar.setBounds(251, 200, 89, 23);
-		contentPane.add(btCancelar);
-
-		this.setVisible(true);
+	private void confirmar() {
+		if ((getCtrl() instanceof CtrlAlterarPessoa || getCtrl() instanceof CtrlExcluirPessoa) && !pessoaEscolhida) {
+			JOptionPane.showMessageDialog(this, "Busque primeiro a pessoa pelo CPF.", "Aviso", JOptionPane.WARNING_MESSAGE);
+			return;
+		}
+		String cpf = tfCpf.getText().trim();
+		String nome = tfNome.getText().trim();
+		int idade;
+		try {
+			idade = Integer.parseInt(tfIdade.getText().trim());
+		} catch (NumberFormatException ex) {
+			JOptionPane.showMessageDialog(this, "Idade inválida.", "Erro", JOptionPane.ERROR_MESSAGE);
+			return;
+		}
+		((CtrlAbstratoPessoa) getCtrl()).efetuar(cpf, nome, idade);
 	}
 
 	public void atualizarDados(String cpf, String nome, int idade) {
-		this.tfCpf.setText(cpf);
-		this.tfNome.setText(nome);
-		this.tfIdade.setText(Integer.toString(idade));
-		this.pessoaEscolhida = true;
+		tfCpf.setText(cpf);
+		tfNome.setText(nome);
+		tfIdade.setText(Integer.toString(idade));
+		pessoaEscolhida = true;
 		if (getCtrl() instanceof CtrlAlterarPessoa || getCtrl() instanceof CtrlExcluirPessoa) {
-			this.btProcurarCpf.setEnabled(false);
-			this.tfCpf.setEnabled(false);
+			btProcurarCpf.setEnabled(false);
+			tfCpf.setEnabled(false);
 		}
-
 	}
-
-	private void configurarBotaoProcurarCpf() {
-		btProcurarCpf = new JButton("Procurar CPF");
-		btProcurarCpf.addActionListener(new ActionListener() {
-			public void actionPerformed(ActionEvent e) {
-				String cpf = tfCpf.getText();
-				CtrlAbstratoPessoa ctrl = (CtrlAbstratoPessoa) getCtrl();
-				ctrl.procurarPessoaComCpf(cpf);
-			}
-		});
-		btProcurarCpf.setBounds(284, 33, 127, 23);
-		contentPane.add(btProcurarCpf);
-	}
-
 }

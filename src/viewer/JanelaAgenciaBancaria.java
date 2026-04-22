@@ -1,15 +1,9 @@
 package viewer;
 
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
-
-import javax.swing.JButton;
-import javax.swing.JFrame;
-import javax.swing.JLabel;
-import javax.swing.JOptionPane;
-import javax.swing.JPanel;
-import javax.swing.JTextField;
-import javax.swing.border.EmptyBorder;
+import java.awt.*;
+import java.awt.event.*;
+import javax.swing.*;
+import javax.swing.border.*;
 
 import controller.CtrlAbstratoAgencia;
 import controller.CtrlAlterarAgenciaBancaria;
@@ -20,140 +14,130 @@ import controller.CtrlSelecionarAgencia;
 public class JanelaAgenciaBancaria extends JanelaAbstrata {
 
 	private static final long serialVersionUID = 1L;
-	//
-	// ATRIBUTOS (Componentes Gráficos)
-	//
-	private JPanel contentPane;
+
 	private JTextField tfNumero;
 	private JTextField tfEndereco;
 	private JTextField tfCidade;
-	private Boolean agenciaEscolhida;
+	private Boolean agenciaEscolhida = false;
 	private JButton btProcurarNumero;
 
-	/**
-	 * Create the frame.
-	 */
 	public JanelaAgenciaBancaria(CtrlAbstratoAgencia c) {
 		super(c);
-		this.agenciaEscolhida = false;
-		setTitle("Agência Bancária");
 		setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-		setBounds(100, 100, 450, 300);
-		contentPane = new JPanel();
-		contentPane.setBorder(new EmptyBorder(5, 5, 5, 5));
+		setSize(420, 320);
+		setLocationRelativeTo(null);
 
+		if (getCtrl() instanceof CtrlIncluirAgenciaBancaria)    setTitle("Incluir Agência");
+		else if (getCtrl() instanceof CtrlAlterarAgenciaBancaria) setTitle("Alterar Agência");
+		else if (getCtrl() instanceof CtrlExcluirAgencia)        setTitle("Excluir Agência");
+		else if (getCtrl() instanceof CtrlSelecionarAgencia)     setTitle("Buscar Agência");
+
+		JPanel contentPane = new JPanel(new BorderLayout());
+		contentPane.setBackground(new Color(245, 247, 250));
 		setContentPane(contentPane);
-		contentPane.setLayout(null);
-		if (getCtrl() instanceof CtrlIncluirAgenciaBancaria) {
-			setTitle("Incluir Agencia");
 
-		} else {
-			configurarBotaoProcurarNumero();
-			if (getCtrl() instanceof CtrlAlterarAgenciaBancaria)
-				setTitle("Alterar Agencia");
-			else if (getCtrl() instanceof CtrlExcluirAgencia)
-				setTitle("Excluir Agencia");
-			else if (getCtrl() instanceof CtrlSelecionarAgencia)
-				setTitle("Selecionar Agencia");
+		JLabel titulo = new JLabel(getTitle(), SwingConstants.CENTER);
+		titulo.setFont(new Font("SansSerif", Font.BOLD, 18));
+		titulo.setForeground(new Color(30, 80, 160));
+		titulo.setBorder(new EmptyBorder(18, 0, 10, 0));
+		contentPane.add(titulo, BorderLayout.NORTH);
 
-		}
-		JLabel lblNewLabel = new JLabel("Número:");
-		lblNewLabel.setBounds(28, 37, 57, 14);
-		contentPane.add(lblNewLabel);
+		JPanel form = new JPanel(new GridBagLayout());
+		form.setBackground(new Color(245, 247, 250));
+		form.setBorder(new EmptyBorder(0, 30, 0, 30));
+		GridBagConstraints gbc = new GridBagConstraints();
+		gbc.insets = new Insets(8, 6, 8, 6);
+		gbc.anchor = GridBagConstraints.WEST;
 
-		tfNumero = new JTextField();
-		tfNumero.setBounds(88, 34, 186, 20);
-		contentPane.add(tfNumero);
-		tfNumero.setColumns(10);
+		tfNumero = new JTextField(10);
+		tfEndereco = new JTextField(22);
+		tfCidade = new JTextField(16);
 
-		JLabel lblNewLabel_1 = new JLabel("Endereço:");
-		lblNewLabel_1.setBounds(28, 86, 57, 14);
-		contentPane.add(lblNewLabel_1);
+		adicionarCampo(form, gbc, "Número:", tfNumero, 0);
+		adicionarCampo(form, gbc, "Endereço:", tfEndereco, 1);
+		adicionarCampo(form, gbc, "Cidade:", tfCidade, 2);
 
-		JLabel lblNewLabel_2 = new JLabel("Cidade:");
-		lblNewLabel_2.setBounds(39, 137, 46, 14);
-		contentPane.add(lblNewLabel_2);
-
-		tfEndereco = new JTextField();
-		tfEndereco.setBounds(88, 83, 288, 20);
-		contentPane.add(tfEndereco);
-		tfEndereco.setColumns(10);
-
-		tfCidade = new JTextField();
-		tfCidade.setBounds(88, 134, 86, 20);
-		contentPane.add(tfCidade);
-		tfCidade.setColumns(10);
-
-		JButton btOk = new JButton("Ok");
-		btOk.addActionListener(new ActionListener() {
-			public void actionPerformed(ActionEvent e) {
-				// Recuperando os dados preenchidos pelo usuário
-				if ((getCtrl() instanceof CtrlAlterarAgenciaBancaria || getCtrl() instanceof CtrlExcluirAgencia
-						|| getCtrl() instanceof CtrlSelecionarAgencia) && !agenciaEscolhida) {
-					JOptionPane.showMessageDialog(null, "Você ainda não definiu qual é a Agencia a ser alterada!");
-					return;
-				}
-				String aux = tfNumero.getText();
-				int numero;
+		if (!(getCtrl() instanceof CtrlIncluirAgenciaBancaria)) {
+			btProcurarNumero = new JButton("Buscar por Número");
+			estilizarBotao(btProcurarNumero, new Color(52, 120, 210));
+			btProcurarNumero.addActionListener(e -> {
 				try {
-					numero = Integer.parseInt(aux);
-				} catch (NumberFormatException nfe) {
-					JOptionPane.showMessageDialog(null, "Número Inválido: " + aux);
-					return;
+					int num = Integer.parseInt(tfNumero.getText().trim());
+					((CtrlAbstratoAgencia) getCtrl()).procurarAgenciaComNumero(num);
+				} catch (NumberFormatException ex) {
+					JOptionPane.showMessageDialog(this, "Número inválido.", "Erro", JOptionPane.ERROR_MESSAGE);
 				}
-				String endereco = tfEndereco.getText();
-				String cidade = tfCidade.getText();
+			});
+			gbc.gridx = 1; gbc.gridy = 3; gbc.fill = GridBagConstraints.HORIZONTAL;
+			form.add(btProcurarNumero, gbc);
+		}
 
-				// Informando ao controlador do caso de uso que ele
-				// deve efetuar a inclusão da pessoa
-				CtrlAbstratoAgencia ctrl = (CtrlAbstratoAgencia) getCtrl();
-				ctrl.efetuar(numero, endereco, cidade);
-			}
-		});
-		btOk.setBounds(85, 200, 89, 23);
-		contentPane.add(btOk);
+		contentPane.add(form, BorderLayout.CENTER);
+
+		JPanel botoes = new JPanel(new FlowLayout(FlowLayout.CENTER, 16, 12));
+		botoes.setBackground(new Color(245, 247, 250));
+
+		JButton btOk = new JButton("Confirmar");
+		estilizarBotao(btOk, new Color(34, 150, 100));
+		btOk.addActionListener(e -> confirmar());
 
 		JButton btCancelar = new JButton("Cancelar");
-		btCancelar.addActionListener(new ActionListener() {
-			public void actionPerformed(ActionEvent e) {
-				CtrlAbstratoAgencia ctrl = (CtrlAbstratoAgencia) getCtrl();
-				ctrl.finalizar();
-			}
-		});
-		btCancelar.setBounds(251, 200, 89, 23);
-		contentPane.add(btCancelar);
-		this.setVisible(true);
+		estilizarBotao(btCancelar, new Color(120, 120, 120));
+		btCancelar.addActionListener(e -> ((CtrlAbstratoAgencia) getCtrl()).finalizar());
+
+		botoes.add(btOk);
+		botoes.add(btCancelar);
+		contentPane.add(botoes, BorderLayout.SOUTH);
+
+		setVisible(true);
+	}
+
+	private void adicionarCampo(JPanel form, GridBagConstraints gbc, String label, JTextField tf, int row) {
+		gbc.gridx = 0; gbc.gridy = row; gbc.fill = GridBagConstraints.NONE;
+		JLabel lbl = new JLabel(label);
+		lbl.setFont(new Font("SansSerif", Font.BOLD, 13));
+		form.add(lbl, gbc);
+		gbc.gridx = 1; gbc.fill = GridBagConstraints.HORIZONTAL;
+		tf.setFont(new Font("SansSerif", Font.PLAIN, 13));
+		form.add(tf, gbc);
+	}
+
+	private void estilizarBotao(JButton btn, Color cor) {
+		btn.setFont(new Font("SansSerif", Font.BOLD, 13));
+		btn.setBackground(cor);
+		btn.setForeground(Color.WHITE);
+		btn.setFocusPainted(false);
+		btn.setBorderPainted(false);
+		btn.setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
+		btn.setPreferredSize(new Dimension(140, 36));
+	}
+
+	private void confirmar() {
+		if ((getCtrl() instanceof CtrlAlterarAgenciaBancaria || getCtrl() instanceof CtrlExcluirAgencia
+				|| getCtrl() instanceof CtrlSelecionarAgencia) && !agenciaEscolhida) {
+			JOptionPane.showMessageDialog(this, "Busque primeiro a agência pelo número.", "Aviso", JOptionPane.WARNING_MESSAGE);
+			return;
+		}
+		int numero;
+		try {
+			numero = Integer.parseInt(tfNumero.getText().trim());
+		} catch (NumberFormatException ex) {
+			JOptionPane.showMessageDialog(this, "Número inválido.", "Erro", JOptionPane.ERROR_MESSAGE);
+			return;
+		}
+		String endereco = tfEndereco.getText().trim();
+		String cidade = tfCidade.getText().trim();
+		((CtrlAbstratoAgencia) getCtrl()).efetuar(numero, endereco, cidade);
 	}
 
 	public void atualizarDados(int numero, String endereco, String cidade) {
-		this.tfNumero.setText(Integer.toString(numero));
-		this.tfEndereco.setText(endereco);
-		this.tfCidade.setText(cidade);
-		this.agenciaEscolhida = true;
+		tfNumero.setText(Integer.toString(numero));
+		tfEndereco.setText(endereco);
+		tfCidade.setText(cidade);
+		agenciaEscolhida = true;
 		if (getCtrl() instanceof CtrlAlterarAgenciaBancaria || getCtrl() instanceof CtrlExcluirAgencia) {
-			this.btProcurarNumero.setEnabled(false);
-			this.tfNumero.setEnabled(false);
+			btProcurarNumero.setEnabled(false);
+			tfNumero.setEnabled(false);
 		}
-	}
-
-	private void configurarBotaoProcurarNumero() {
-		btProcurarNumero = new JButton("Procurar Numero!");
-		btProcurarNumero.addActionListener(new ActionListener() {
-			public void actionPerformed(ActionEvent e) {
-				String aux = tfNumero.getText();
-				int numero;
-				try {
-					numero = Integer.parseInt(aux);
-				} catch (NumberFormatException nfe) {
-					JOptionPane.showMessageDialog(null, "Número Inválido: " + aux);
-					return;
-				}
-				CtrlAbstratoAgencia ctrl = (CtrlAbstratoAgencia) getCtrl();
-				ctrl.procurarAgenciaComNumero(numero);
-
-			}
-		});
-		btProcurarNumero.setBounds(284, 33, 140, 23);
-		contentPane.add(btProcurarNumero);
 	}
 }
