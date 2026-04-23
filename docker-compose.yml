@@ -1,0 +1,39 @@
+version: '3.8'
+
+services:
+  postgres:
+    image: postgres:16-alpine
+    container_name: banco_postgres
+    environment:
+      POSTGRES_DB: bancodb
+      POSTGRES_USER: banco
+      POSTGRES_PASSWORD: banco123
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    restart: unless-stopped
+
+  api:
+    build: ./packages/api
+    container_name: banco_api
+    ports:
+      - "3001:3001"
+    environment:
+      DATABASE_URL: postgresql://banco:banco123@postgres:5432/bancodb
+      PORT: 3001
+    depends_on:
+      - postgres
+    restart: unless-stopped
+
+  web:
+    build: ./packages/web
+    container_name: banco_web
+    ports:
+      - "3000:80"
+    depends_on:
+      - api
+    restart: unless-stopped
+
+volumes:
+  postgres_data:
