@@ -49,7 +49,7 @@ export default function Agencias() {
 
   return (
     <div>
-      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 24 }}>
+      <div className="page-header">
         <div>
           <h1 style={{ fontSize: 22, fontWeight: 700 }}>Agências Bancárias</h1>
           <p style={{ color: 'var(--text-muted)', marginTop: 4 }}>{agencias.length} agência(s) cadastrada(s)</p>

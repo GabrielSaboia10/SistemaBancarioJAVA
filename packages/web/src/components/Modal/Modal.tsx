@@ -31,6 +31,7 @@ export default function Modal({ isOpen, onClose, title, children, width = 480 }:
         style={{
           background: '#fff', borderRadius: 12, width, maxWidth: '100%',
           boxShadow: '0 20px 60px rgba(0,0,0,.2)', overflow: 'hidden',
+          maxHeight: '90dvh', display: 'flex', flexDirection: 'column',
         }}
       >
         <div style={{
@@ -43,7 +44,7 @@ export default function Modal({ isOpen, onClose, title, children, width = 480 }:
             lineHeight: 1, padding: '0 4px', cursor: 'pointer',
           }}>×</button>
         </div>
-        <div style={{ padding: '24px' }}>{children}</div>
+        <div style={{ padding: '24px', overflowY: 'auto' }}>{children}</div>
       </div>
     </div>
   )

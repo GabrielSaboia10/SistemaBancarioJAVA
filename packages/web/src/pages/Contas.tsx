@@ -44,7 +44,7 @@ export default function Contas() {
 
   return (
     <div>
-      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 24 }}>
+      <div className="page-header">
         <div>
           <h1 style={{ fontSize: 22, fontWeight: 700 }}>Contas Bancárias</h1>
           <p style={{ color: 'var(--text-muted)', marginTop: 4 }}>{contas.length} conta(s) ativa(s)</p>
@@ -81,7 +81,7 @@ export default function Contas() {
             <label>Número da Conta</label>
             <input type="number" value={form.numContaCorrente} onChange={(e) => setForm({ ...form, numContaCorrente: e.target.value })} placeholder="1000 a 99999" required />
           </div>
-          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 12 }}>
+          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(140px, 1fr))', gap: 12 }}>
             <div className="form-group">
               <label>Saldo Inicial (R$)</label>
               <input type="number" step="0.01" value={form.saldo} onChange={(e) => setForm({ ...form, saldo: e.target.value })} placeholder="0.00" />
