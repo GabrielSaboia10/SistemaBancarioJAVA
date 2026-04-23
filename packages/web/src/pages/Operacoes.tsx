@@ -1,6 +1,7 @@
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 import { useContas } from '../hooks/useContas'
 import { contasApi } from '../api/contas'
+import { useAuth } from '../contexts/AuthContext'
 import type { ContaBancaria } from '../types'
 
 type OpType = 'deposito' | 'saque' | 'transferencia'
@@ -14,13 +15,21 @@ const opConfig: Record<OpType, { label: string; color: string; icon: string }> =
 }
 
 export default function Operacoes() {
+  const { isCliente } = useAuth()
   const { contas, atualizar } = useContas()
   const [op, setOp] = useState<OpType>('deposito')
   const [origemId, setOrigemId] = useState('')
   const [destinoId, setDestinoId] = useState('')
+  const [destinoNumConta, setDestinoNumConta] = useState('')
   const [valor, setValor] = useState('')
   const [loading, setLoading] = useState(false)
   const [result, setResult] = useState<{ type: 'success' | 'error'; msg: string } | null>(null)
+
+  useEffect(() => {
+    if (isCliente && contas.length === 1 && !origemId) {
+      setOrigemId(String(contas[0].id))
+    }
+  }, [contas, isCliente, origemId])
 
   const contaOrigem: ContaBancaria | undefined = contas.find((c) => c.id === Number(origemId))
 
@@ -40,7 +49,11 @@ export default function Operacoes() {
         atualizar(conta)
         setResult({ type: 'success', msg: `Saque de ${fmt(v)} realizado. Novo saldo: ${fmt(conta.saldo)}` })
       } else {
-        conta = await contasApi.transferir(Number(origemId), Number(destinoId), v)
+        if (isCliente) {
+          conta = await contasApi.transferirPorNumConta(Number(origemId), Number(destinoNumConta), v)
+        } else {
+          conta = await contasApi.transferir(Number(origemId), Number(destinoId), v)
+        }
         atualizar(conta)
         setResult({ type: 'success', msg: `Transferência de ${fmt(v)} realizada. Novo saldo da origem: ${fmt(conta.saldo)}` })
       }
@@ -92,14 +105,22 @@ export default function Operacoes() {
           <form onSubmit={handleSubmit}>
             <div className="form-group">
               <label>{op === 'transferencia' ? 'Conta Origem' : 'Conta'}</label>
-              <select value={origemId} onChange={(e) => setOrigemId(e.target.value)} required>
-                <option value="">Selecione a conta...</option>
-                {contas.map((c) => (
-                  <option key={c.id} value={c.id}>
-                    {c.numContaCorrente} — {c.correntista.nome} ({fmt(c.saldo)})
-                  </option>
-                ))}
-              </select>
+              {isCliente ? (
+                <input
+                  value={contaOrigem ? `${contaOrigem.numContaCorrente} — ${contaOrigem.correntista?.nome ?? ''} (${fmt(contaOrigem.saldo)})` : ''}
+                  readOnly
+                  style={{ background: '#f8fafc', cursor: 'default' }}
+                />
+              ) : (
+                <select value={origemId} onChange={(e) => setOrigemId(e.target.value)} required>
+                  <option value="">Selecione a conta...</option>
+                  {contas.map((c) => (
+                    <option key={c.id} value={c.id}>
+                      {c.numContaCorrente} — {c.correntista.nome} ({fmt(c.saldo)})
+                    </option>
+                  ))}
+                </select>
+              )}
             </div>
 
             {contaOrigem && (
@@ -116,14 +137,24 @@ export default function Operacoes() {
             {op === 'transferencia' && (
               <div className="form-group">
                 <label>Conta Destino</label>
-                <select value={destinoId} onChange={(e) => setDestinoId(e.target.value)} required>
-                  <option value="">Selecione a conta destino...</option>
-                  {contas.filter((c) => c.id !== Number(origemId)).map((c) => (
-                    <option key={c.id} value={c.id}>
-                      {c.numContaCorrente} — {c.correntista.nome}
-                    </option>
-                  ))}
-                </select>
+                {isCliente ? (
+                  <input
+                    type="number"
+                    value={destinoNumConta}
+                    onChange={(e) => setDestinoNumConta(e.target.value)}
+                    placeholder="Número da conta destino"
+                    required
+                  />
+                ) : (
+                  <select value={destinoId} onChange={(e) => setDestinoId(e.target.value)} required>
+                    <option value="">Selecione a conta destino...</option>
+                    {contas.filter((c) => c.id !== Number(origemId)).map((c) => (
+                      <option key={c.id} value={c.id}>
+                        {c.numContaCorrente} — {c.correntista.nome}
+                      </option>
+                    ))}
+                  </select>
+                )}
               </div>
             )}
 

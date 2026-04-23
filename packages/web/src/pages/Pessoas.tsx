@@ -2,6 +2,7 @@ import { useState } from 'react'
 import { usePessoas } from '../hooks/usePessoas'
 import Table from '../components/Table/Table'
 import Modal from '../components/Modal/Modal'
+import { formatCpf, stripCpf } from '../lib/cpf'
 import type { Pessoa } from '../types'
 
 type Form = { cpf: string; nome: string; idade: string }
@@ -26,6 +27,9 @@ export default function Pessoas() {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
+    if (modal === 'create' && stripCpf(form.cpf).length !== 11) {
+      setFormError('CPF inválido'); return
+    }
     setSaving(true)
     setFormError('')
     try {
@@ -43,13 +47,13 @@ export default function Pessoas() {
   }
 
   const handleDelete = async (p: Pessoa) => {
-    if (!confirm(`Excluir ${p.nome}?`)) return
+    if (!confirm(`Excluir ${p.nome}? O acesso ao sistema também será removido.`)) return
     try { await remove(p.id) } catch (err) { alert((err as Error).message) }
   }
 
   return (
     <div>
-      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 24 }}>
+      <div className="page-header">
         <div>
           <h1 style={{ fontSize: 22, fontWeight: 700 }}>Clientes</h1>
           <p style={{ color: 'var(--text-muted)', marginTop: 4 }}>{pessoas.length} cliente(s) cadastrado(s)</p>
@@ -78,8 +82,14 @@ export default function Pessoas() {
           {formError && <div className="error-msg">{formError}</div>}
           <div className="form-group">
             <label>CPF</label>
-            <input value={form.cpf} onChange={(e) => setForm({ ...form, cpf: e.target.value })}
-              placeholder="123.456.789-09" disabled={modal === 'edit'} required />
+            <input
+              value={form.cpf}
+              onChange={(e) => setForm({ ...form, cpf: formatCpf(e.target.value) })}
+              placeholder="000.000.000-00"
+              maxLength={14}
+              disabled={modal === 'edit'}
+              required
+            />
           </div>
           <div className="form-group">
             <label>Nome</label>
@@ -91,6 +101,14 @@ export default function Pessoas() {
             <input type="number" value={form.idade} onChange={(e) => setForm({ ...form, idade: e.target.value })}
               placeholder="0" min={0} max={150} required />
           </div>
+          {modal === 'create' && (
+            <div style={{
+              background: '#eff6ff', border: '1px solid #bfdbfe', borderRadius: 8,
+              padding: '10px 14px', fontSize: 12, color: '#1e40af', marginBottom: 16,
+            }}>
+              O cliente receberá acesso ao sistema com a senha inicial igual aos últimos 6 dígitos do CPF.
+            </div>
+          )}
           <div style={{ display: 'flex', gap: 10, justifyContent: 'flex-end', marginTop: 8 }}>
             <button type="button" className="btn btn-ghost" onClick={closeModal}>Cancelar</button>
             <button type="submit" className="btn btn-primary" disabled={saving}>
