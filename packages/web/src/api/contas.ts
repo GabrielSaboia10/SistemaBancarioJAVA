@@ -15,4 +15,6 @@ export const contasApi = {
     client.post<ContaBancaria>(`/contas/${id}/sacar`, { valor }).then((r) => r.data),
   transferir: (id: number, destinoId: number, valor: number) =>
     client.post<ContaBancaria>(`/contas/${id}/transferir`, { destinoId, valor }).then((r) => r.data),
+  transferirPorNumConta: (id: number, destinoNumConta: number, valor: number) =>
+    client.post<ContaBancaria>(`/contas/${id}/transferir`, { destinoNumConta, valor }).then((r) => r.data),
 }

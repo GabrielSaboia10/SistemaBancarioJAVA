@@ -26,6 +26,15 @@ export interface ContaBancaria {
   createdAt: string
 }
 
+export type Role = 'ADMIN' | 'CLIENTE'
+
+export interface AuthUser {
+  token: string
+  role: Role
+  nome: string
+  pessoaId: number | null
+}
+
 export interface Stats {
   totalContas: number
   totalPessoas: number
