@@ -7,14 +7,32 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
+enum Role {
+  ADMIN
+  CLIENTE
+}
+
 model Pessoa {
   id        Int             @id @default(autoincrement())
   cpf       String          @unique @db.VarChar(14)
   nome      String          @db.VarChar(40)
   idade     Int
   contas    ContaBancaria[]
+  usuario   Usuario?
   createdAt DateTime        @default(now())
   updatedAt DateTime        @updatedAt
+}
+
+model Usuario {
+  id        Int      @id @default(autoincrement())
+  cpf       String   @unique @db.VarChar(14)
+  senha     String
+  role      Role     @default(CLIENTE)
+  pessoaId  Int?     @unique
+  pessoa    Pessoa?  @relation(fields: [pessoaId], references: [id])
+  ativo     Boolean  @default(true)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
 }
 
 model AgenciaBancaria {
