@@ -1,10 +1,21 @@
 import { Router } from 'express'
 import prisma from '../lib/prisma'
+import { authorize } from '../middleware/auth'
 
 const router = Router()
 
-router.get('/', async (_req, res, next) => {
+router.get('/', async (req, res, next) => {
   try {
+    if (req.user!.role === 'CLIENTE') {
+      const contas = await prisma.contaBancaria.findMany({
+        where: { pessoaId: req.user!.pessoaId! },
+        select: { agenciaId: true },
+      })
+      const ids = contas.map(c => c.agenciaId)
+      const agencias = await prisma.agenciaBancaria.findMany({ where: { id: { in: ids } } })
+      res.json(agencias)
+      return
+    }
     const agencias = await prisma.agenciaBancaria.findMany({ orderBy: { numero: 'asc' } })
     res.json(agencias)
   } catch (e) { next(e) }
@@ -12,12 +23,19 @@ router.get('/', async (_req, res, next) => {
 
 router.get('/:id', async (req, res, next) => {
   try {
-    const agencia = await prisma.agenciaBancaria.findUniqueOrThrow({ where: { id: Number(req.params.id) } })
+    const id = Number(req.params.id)
+    if (req.user!.role === 'CLIENTE') {
+      const conta = await prisma.contaBancaria.findFirst({
+        where: { pessoaId: req.user!.pessoaId!, agenciaId: id },
+      })
+      if (!conta) { res.status(403).json({ erro: 'Acesso negado' }); return }
+    }
+    const agencia = await prisma.agenciaBancaria.findUniqueOrThrow({ where: { id } })
     res.json(agencia)
   } catch (e) { next(e) }
 })
 
-router.post('/', async (req, res, next) => {
+router.post('/', authorize('ADMIN'), async (req, res, next) => {
   try {
     const { numero, endereco, cidade } = req.body
     if (!numero || numero < 1 || numero > 10000) throw new Error('Número da agência inválido (1 a 10000)')
@@ -28,7 +46,7 @@ router.post('/', async (req, res, next) => {
   } catch (e) { next(e) }
 })
 
-router.put('/:id', async (req, res, next) => {
+router.put('/:id', authorize('ADMIN'), async (req, res, next) => {
   try {
     const { endereco, cidade } = req.body
     const agencia = await prisma.agenciaBancaria.update({
@@ -39,7 +57,7 @@ router.put('/:id', async (req, res, next) => {
   } catch (e) { next(e) }
 })
 
-router.delete('/:id', async (req, res, next) => {
+router.delete('/:id', authorize('ADMIN'), async (req, res, next) => {
   try {
     await prisma.agenciaBancaria.delete({ where: { id: Number(req.params.id) } })
     res.status(204).send()
