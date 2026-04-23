@@ -3,9 +3,9 @@ bin/
 *.class
 
 # Eclipse project files
-.classpath
-.project
-.settings/
+**/.classpath
+**/.project
+**/.settings/
 
 # Build output
 out/
