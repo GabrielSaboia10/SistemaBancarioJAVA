@@ -13,19 +13,15 @@ public class CtrlAlterarPessoa extends CtrlAbstratoPessoa {
 		this.setPessoaEmEdicao(null);
 		this.getMeuViewer().apresentar();
 	}
-	
-	/**
-	 * Método disparado por solicitação do viewer para que o controlador
-	 * recupere a pessoa com o cpf indicado e repasse os dados para o viewer
-	 * @param cpf
-	 */
-	
-	public void efetuar(String cpf, String nome, int idade) {
+
+	public void efetuar(String cpf, String nome, int idade, String endereco, String telefone) {
 		try {
 			Pessoa p = this.getPessoaEmEdicao();
-			p.setCpf(cpf);
+			// CPF não é alterado — campo fica desabilitado após busca
 			p.setNome(nome);
-			p.setIdade(idade);			
+			p.setIdade(idade);
+			p.setEndereco(endereco);
+			p.setTelefone(telefone);
 		} catch (ModelException e1) {
 			this.getMeuViewer().notificar("Erro: " + e1);
 			return;
@@ -34,5 +30,5 @@ public class CtrlAlterarPessoa extends CtrlAbstratoPessoa {
 		dao.alterar(this.getPessoaEmEdicao());
 		this.getMeuViewer().notificar("Alteração da Pessoa realizada com sucesso!");
 		this.finalizar();
-	}	
+	}
 }
