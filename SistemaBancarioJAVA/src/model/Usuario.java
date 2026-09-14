@@ -6,7 +6,7 @@ public class Usuario implements Serializable {
 
 	private static final long serialVersionUID = 1L;
 
-	final public static int TAM_CPF     = 14;
+	final public static int TAM_CPF     = Pessoa.TAM_CPF;
 	final public static int TAM_SENHA   = 64; // SHA-256 hex
 
 	private String  cpf;
@@ -24,9 +24,10 @@ public class Usuario implements Serializable {
 	public String getCpf() { return cpf; }
 
 	public void setCpf(String cpf) throws ModelException {
-		if (cpf == null || cpf.length() != TAM_CPF)
-			throw new ModelException("CPF do usuário deve ter " + TAM_CPF + " caracteres!");
-		this.cpf = cpf;
+		String cpfNormalizado = Pessoa.normalizarCpf(cpf);
+		if (cpfNormalizado == null || cpfNormalizado.length() != TAM_CPF)
+			throw new ModelException("CPF do usuário deve ter " + TAM_CPF + " dígitos!");
+		this.cpf = cpfNormalizado;
 	}
 
 	public String getSenhaHash() { return senhaHash; }
