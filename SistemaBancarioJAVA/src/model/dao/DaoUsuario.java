@@ -8,6 +8,7 @@ import java.io.ObjectOutputStream;
 import java.util.HashSet;
 import java.util.Set;
 
+import model.Pessoa;
 import model.Usuario;
 
 public class DaoUsuario {
@@ -60,8 +61,9 @@ public class DaoUsuario {
 	}
 
 	public Usuario consultarPorCpf(String cpf) {
+		String cpfNormalizado = Pessoa.normalizarCpf(cpf);
 		for (Usuario u : conjUsuarios)
-			if (u.getCpf().equals(cpf))
+			if (u.getCpf().equals(cpfNormalizado))
 				return u;
 		return null;
 	}
