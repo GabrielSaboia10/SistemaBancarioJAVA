@@ -35,10 +35,11 @@ public class CtrlIncluirPessoa extends CtrlAbstratoPessoa {
 			return;
 		}
 
-		// Auto-cria usuário CLIENTE com senha inicial = últimos 6 chars do CPF
-		String senhaInicial = cpf.substring(cpf.length() - 6);
+		// Auto-cria usuário CLIENTE com senha inicial = últimos 6 dígitos do CPF (já normalizado)
+		String cpfNormalizado = p.getCpf();
+		String senhaInicial = cpfNormalizado.substring(cpfNormalizado.length() - 6);
 		try {
-			Usuario u = new Usuario(cpf, SenhaUtil.hashSha256(senhaInicial), Role.CLIENTE, p);
+			Usuario u = new Usuario(cpfNormalizado, SenhaUtil.hashSha256(senhaInicial), Role.CLIENTE, p);
 			new DaoUsuario().incluir(u);
 			this.getMeuViewer().notificar(
 				"Pessoa " + p + " incluída!\n" +
