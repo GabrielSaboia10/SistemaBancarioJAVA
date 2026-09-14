@@ -9,7 +9,7 @@ public class Pessoa implements Serializable {
 	//
 	// CONSTANTES
 	//
-	final public static int TAM_CPF          = 14;
+	final public static int TAM_CPF          = 11;
 	final public static int TAM_MAXIMO_NOME  = 40;
 	final public static int IDADE_MAXIMA     = 150;
 	final public static int TAM_MAX_ENDERECO = 100;
@@ -39,8 +39,9 @@ public class Pessoa implements Serializable {
 	public String getCpf() { return this.cpf; }
 
 	public void setCpf(String cpf) throws ModelException {
-		Pessoa.validarCpf(cpf);
-		this.cpf = cpf;
+		String cpfNormalizado = Pessoa.normalizarCpf(cpf);
+		Pessoa.validarCpf(cpfNormalizado);
+		this.cpf = cpfNormalizado;
 	}
 
 	public String getNome() { return this.nome; }
@@ -77,11 +78,22 @@ public class Pessoa implements Serializable {
 	//
 	// Métodos de Validação
 	//
+
+	/**
+	 * Remove qualquer caractere que não seja dígito (pontos, traço, espaços),
+	 * para que o CPF seja aceito com ou sem máscara, não importa de onde venha.
+	 */
+	public static String normalizarCpf(String cpf) {
+		if (cpf == null)
+			return null;
+		return cpf.replaceAll("[^0-9]", "");
+	}
+
 	public static void validarCpf(String cpf) throws ModelException {
-		if (cpf == null || cpf.length() == 0 || cpf.isEmpty())
+		if (cpf == null || cpf.isEmpty())
 			throw new ModelException("O CPF não pode ser nulo!");
 		if (cpf.length() != TAM_CPF)
-			throw new ModelException("O CPF deve ter " + TAM_CPF + " caracteres!");
+			throw new ModelException("O CPF deve ter " + TAM_CPF + " dígitos!");
 	}
 
 	public static void validarNome(String nome) throws ModelException {
