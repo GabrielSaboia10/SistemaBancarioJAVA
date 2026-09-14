@@ -20,40 +20,31 @@ import controller.CtrlSelecionarPessoa;
 public class JanelaPessoa extends JanelaAbstrata {
 
 	private static final long serialVersionUID = 1L;
-	//
-	// ATRIBUTOS (Componentes Gráficos)
-	//
-	private JPanel contentPane;
+
+	private JPanel     contentPane;
 	private JTextField tfCpf;
 	private JTextField tfNome;
 	private JTextField tfIdade;
-	private JButton btProcurarCpf;
-	private JButton btOk;
-	private JButton btCancelar;
-	private boolean pessoaEscolhida;
+	private JTextField tfEndereco;
+	private JTextField tfTelefone;
+	private JButton    btProcurarCpf;
+	private JButton    btOk;
+	private JButton    btCancelar;
+	private boolean    pessoaEscolhida;
 
-	/**
-	 * Create the frame.
-	 */
 	public JanelaPessoa(CtrlAbstratoPessoa c) {
 		super(c);
 
-		// Definimos o content pane da janela
 		setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-		setBounds(100, 100, 450, 300);
+		setBounds(100, 100, 480, 380);
 		contentPane = new JPanel();
 		contentPane.setBorder(new EmptyBorder(5, 5, 5, 5));
-
 		setContentPane(contentPane);
 		contentPane.setLayout(null);
 
-		// Vou redundantemente indicar que o atributo
-		// "pessoaEscolhida" é igual a "false", pois, no início
-		// o usuário ainda não indicou a pessoa a ser alterada
 		this.pessoaEscolhida = false;
-		// Verificando qual é o controlador dessa janela
 
-		if ((getCtrl() instanceof CtrlIncluirPessoa)) {
+		if (getCtrl() instanceof CtrlIncluirPessoa) {
 			setTitle("Incluir Pessoa");
 		} else {
 			configurarBotaoProcurarCpf();
@@ -62,89 +53,99 @@ public class JanelaPessoa extends JanelaAbstrata {
 			else if (getCtrl() instanceof CtrlAlterarPessoa)
 				setTitle("Alterar Pessoa");
 			else if (getCtrl() instanceof CtrlSelecionarPessoa)
-				setTitle("Selecionar Pessoa Especificas");
+				setTitle("Selecionar Pessoa");
 		}
 
-		JLabel lblNewLabel = new JLabel("CPF:");
-		lblNewLabel.setBounds(39, 37, 46, 14);
-		contentPane.add(lblNewLabel);
-
+		// CPF
+		JLabel lblCpf = new JLabel("CPF:");
+		lblCpf.setBounds(20, 20, 80, 20);
+		contentPane.add(lblCpf);
 		tfCpf = new JTextField();
-		tfCpf.setBounds(88, 34, 186, 20);
+		tfCpf.setBounds(110, 20, 200, 20);
 		contentPane.add(tfCpf);
-		tfCpf.setColumns(10);
 
-		JLabel lblNewLabel_1 = new JLabel("Nome:");
-		lblNewLabel_1.setBounds(39, 86, 46, 14);
-		contentPane.add(lblNewLabel_1);
-
-		JLabel lblNewLabel_2 = new JLabel("Idade:");
-		lblNewLabel_2.setBounds(39, 137, 46, 14);
-		contentPane.add(lblNewLabel_2);
-
+		// Nome
+		JLabel lblNome = new JLabel("Nome:");
+		lblNome.setBounds(20, 55, 80, 20);
+		contentPane.add(lblNome);
 		tfNome = new JTextField();
-		tfNome.setBounds(88, 83, 288, 20);
+		tfNome.setBounds(110, 55, 320, 20);
 		contentPane.add(tfNome);
-		tfNome.setColumns(10);
 
+		// Idade
+		JLabel lblIdade = new JLabel("Idade:");
+		lblIdade.setBounds(20, 90, 80, 20);
+		contentPane.add(lblIdade);
 		tfIdade = new JTextField();
-		tfIdade.setBounds(88, 134, 86, 20);
+		tfIdade.setBounds(110, 90, 80, 20);
 		contentPane.add(tfIdade);
-		tfIdade.setColumns(10);
 
+		// Endereço
+		JLabel lblEndereco = new JLabel("Endereço:");
+		lblEndereco.setBounds(20, 125, 80, 20);
+		contentPane.add(lblEndereco);
+		tfEndereco = new JTextField();
+		tfEndereco.setBounds(110, 125, 320, 20);
+		contentPane.add(tfEndereco);
+
+		// Telefone
+		JLabel lblTelefone = new JLabel("Telefone:");
+		lblTelefone.setBounds(20, 160, 80, 20);
+		contentPane.add(lblTelefone);
+		tfTelefone = new JTextField();
+		tfTelefone.setBounds(110, 160, 150, 20);
+		contentPane.add(tfTelefone);
+
+		// Botões
 		btOk = new JButton("Ok");
 		btOk.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
-				// Se a pessoa a ser alterada ainda não foi escolhida, saímos.
 				if ((getCtrl() instanceof CtrlAlterarPessoa || getCtrl() instanceof CtrlExcluirPessoa)
 						&& !pessoaEscolhida) {
-					JOptionPane.showMessageDialog(null, "Você ainda não definiu qual é a Pessoa a ser alterada!");
+					JOptionPane.showMessageDialog(null, "Você ainda não definiu qual é a Pessoa!");
 					return;
 				}
-				// Recuperando os dados preenchidos pelo usuário
-				String cpf = tfCpf.getText(); // 123.123.123-12
-				String nome = tfNome.getText();
-				String aux = tfIdade.getText();
-				int idade;
+				String cpf      = tfCpf.getText();
+				String nome     = tfNome.getText();
+				String endereco = tfEndereco.getText();
+				String telefone = tfTelefone.getText();
+				int    idade;
 				try {
-					idade = Integer.parseInt(aux);
+					idade = Integer.parseInt(tfIdade.getText().trim());
 				} catch (NumberFormatException nfe) {
-					JOptionPane.showMessageDialog(null, "Idade Inválida: " + aux);
+					JOptionPane.showMessageDialog(null, "Idade inválida: " + tfIdade.getText());
 					return;
 				}
-
-				// Informando ao controlador do caso de uso que ele
-				// deve efetuar a efetuar a operação com a pessoa
 				CtrlAbstratoPessoa ctrl = (CtrlAbstratoPessoa) getCtrl();
-				ctrl.efetuar(cpf, nome, idade);
+				ctrl.efetuar(cpf, nome, idade, endereco, telefone);
 			}
 		});
-		btOk.setBounds(85, 200, 89, 23);
+		btOk.setBounds(90, 290, 89, 30);
 		contentPane.add(btOk);
 
 		btCancelar = new JButton("Cancelar");
 		btCancelar.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
-				CtrlAbstratoPessoa ctrl = (CtrlAbstratoPessoa) getCtrl();
-				ctrl.finalizar();
+				((CtrlAbstratoPessoa) getCtrl()).finalizar();
 			}
 		});
-		btCancelar.setBounds(251, 200, 89, 23);
+		btCancelar.setBounds(260, 290, 89, 30);
 		contentPane.add(btCancelar);
 
 		this.setVisible(true);
 	}
 
-	public void atualizarDados(String cpf, String nome, int idade) {
+	public void atualizarDados(String cpf, String nome, int idade, String endereco, String telefone) {
 		this.tfCpf.setText(cpf);
 		this.tfNome.setText(nome);
 		this.tfIdade.setText(Integer.toString(idade));
+		this.tfEndereco.setText(endereco != null ? endereco : "");
+		this.tfTelefone.setText(telefone != null ? telefone : "");
 		this.pessoaEscolhida = true;
 		if (getCtrl() instanceof CtrlAlterarPessoa || getCtrl() instanceof CtrlExcluirPessoa) {
 			this.btProcurarCpf.setEnabled(false);
-			this.tfCpf.setEnabled(false);
+			this.tfCpf.setEnabled(false); // CPF imutável após busca
 		}
-
 	}
 
 	private void configurarBotaoProcurarCpf() {
@@ -152,12 +153,10 @@ public class JanelaPessoa extends JanelaAbstrata {
 		btProcurarCpf.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
 				String cpf = tfCpf.getText();
-				CtrlAbstratoPessoa ctrl = (CtrlAbstratoPessoa) getCtrl();
-				ctrl.procurarPessoaComCpf(cpf);
+				((CtrlAbstratoPessoa) getCtrl()).procurarPessoaComCpf(cpf);
 			}
 		});
-		btProcurarCpf.setBounds(284, 33, 127, 23);
+		btProcurarCpf.setBounds(320, 18, 127, 23);
 		contentPane.add(btProcurarCpf);
 	}
-
 }
