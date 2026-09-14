@@ -35,8 +35,9 @@ public class DaoPessoa {
 	}
 	
 	public Pessoa consultarPorCpf(String cpf) {
-		for(Pessoa p : DaoPessoa.conjPessoas) 
-			if(p.getCpf().equals(cpf))
+		String cpfNormalizado = Pessoa.normalizarCpf(cpf);
+		for(Pessoa p : DaoPessoa.conjPessoas)
+			if(p.getCpf().equals(cpfNormalizado))
 				return p;
 		return null;
 	}
