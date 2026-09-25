@@ -1,0 +1,4 @@
+# Scripts executados no Linux (Docker) precisam de LF, mesmo quando o repo é clonado no Windows
+mvnw text eol=lf
+*.sh text eol=lf
+mvnw.cmd text eol=crlf
