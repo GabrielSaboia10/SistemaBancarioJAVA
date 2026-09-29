@@ -1,0 +1,416 @@
+/* ===== Tema ===== */
+:root {
+  --bg: #f3f4f6;
+  --surface: #ffffff;
+  --surface-2: #f7f8fa;
+  --text: #1c2430;
+  --muted: #667085;
+  --border: #e1e4e8;
+  --primary: #1f3a5f;
+  --primary-hover: #182e4b;
+  --primary-soft: #eef2f7;
+  --on-primary: #ffffff;
+  --success: #1e7b47;
+  --success-soft: #e8f3ec;
+  --danger: #b3261e;
+  --danger-soft: #fbeceb;
+  --sidebar: #1f3a5f;
+  --shadow: none;
+  --radius: 8px;
+  --radius-sm: 6px;
+  --nav-h: 60px;
+  color-scheme: light;
+}
+
+@media (prefers-color-scheme: dark) {
+  :root {
+    --bg: #121417;
+    --surface: #1a1d21;
+    --surface-2: #202328;
+    --text: #e6e8eb;
+    --muted: #9aa1ab;
+    --border: #2c3036;
+    --primary: #8fb3de;
+    --primary-hover: #a9c5e7;
+    --primary-soft: #232b36;
+    --on-primary: #10151c;
+    --success: #6cc08f;
+    --success-soft: #1b2a21;
+    --danger: #ef8a82;
+    --danger-soft: #34201f;
+    --sidebar: #0d0f12;
+    color-scheme: dark;
+  }
+}
+
+/* ===== Base ===== */
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
+html,
+body {
+  margin: 0;
+  min-height: 100%;
+}
+
+body {
+  background: var(--bg);
+  color: var(--text);
+  font-family: system-ui, -apple-system, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+  font-size: 14px;
+  line-height: 1.5;
+  -webkit-font-smoothing: antialiased;
+  -webkit-tap-highlight-color: transparent;
+}
+
+h1,
+h2,
+h3 {
+  margin: 0;
+  line-height: 1.25;
+}
+
+h1 {
+  font-size: 1.35rem;
+  font-weight: 600;
+}
+
+h2 {
+  font-size: 1rem;
+  font-weight: 600;
+}
+
+a {
+  color: var(--primary);
+}
+
+.muted {
+  color: var(--muted);
+}
+
+.num {
+  font-variant-numeric: tabular-nums;
+}
+
+.positivo {
+  color: var(--success);
+}
+
+.negativo {
+  color: var(--danger);
+}
+
+/* ===== Layout de página ===== */
+.page {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.page-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+
+.card {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  box-shadow: var(--shadow);
+  padding: 16px;
+}
+
+.grid-cards {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+  gap: 12px;
+}
+
+.toolbar {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+  align-items: center;
+}
+
+/* ===== Botões ===== */
+.btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  min-height: 40px;
+  padding: 0 16px;
+  border-radius: var(--radius-sm);
+  border: 1px solid transparent;
+  font: inherit;
+  font-weight: 500;
+  cursor: pointer;
+  text-decoration: none;
+  transition: background 0.15s, border-color 0.15s;
+  background: var(--primary);
+  color: var(--on-primary);
+
+  &:hover:not(:disabled) {
+    background: var(--primary-hover);
+  }
+
+  &:disabled {
+    opacity: 0.55;
+    cursor: not-allowed;
+  }
+
+  &.secundario {
+    background: var(--surface);
+    color: var(--text);
+    border-color: var(--border);
+
+    &:hover:not(:disabled) {
+      background: var(--surface-2);
+    }
+  }
+
+  &.perigo {
+    background: transparent;
+    color: var(--danger);
+    border-color: var(--border);
+
+    &:hover:not(:disabled) {
+      background: var(--danger-soft);
+    }
+  }
+
+  &.pequeno {
+    min-height: 36px;
+    padding: 0 12px;
+    font-size: 0.875rem;
+  }
+
+  &.bloco {
+    width: 100%;
+  }
+}
+
+/* ===== Formulários ===== */
+.form {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+
+.campo {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+
+  label {
+    font-size: 0.8125rem;
+    font-weight: 500;
+  }
+
+  input,
+  select {
+    min-height: 40px;
+    padding: 0 12px;
+    border-radius: var(--radius-sm);
+    border: 1px solid var(--border);
+    background: var(--surface);
+    color: var(--text);
+    font: inherit;
+    font-size: 16px; /* 16px evita o zoom automático do iOS ao focar */
+
+    &:focus {
+      outline: 2px solid var(--primary);
+      outline-offset: 1px;
+      border-color: transparent;
+    }
+  }
+
+  .erro-campo {
+    color: var(--danger);
+    font-size: 0.8rem;
+  }
+
+  .dica {
+    color: var(--muted);
+    font-size: 0.8rem;
+  }
+}
+
+.linha-campos {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 12px;
+}
+
+.alerta {
+  padding: 12px 14px;
+  border-radius: var(--radius-sm);
+  font-size: 0.9rem;
+
+  &.erro {
+    background: var(--danger-soft);
+    color: var(--danger);
+  }
+
+  &.sucesso {
+    background: var(--success-soft);
+    color: var(--success);
+  }
+
+  &.aviso {
+    background: var(--surface-2);
+    color: var(--muted);
+    border: 1px solid var(--border);
+  }
+}
+
+.status {
+  font-size: 0.8rem;
+  font-weight: 500;
+
+  &.ativo {
+    color: var(--success);
+  }
+
+  &.pendente {
+    color: var(--muted);
+  }
+
+  &.bloqueado {
+    color: var(--danger);
+  }
+}
+
+.subtitulo {
+  margin: 4px 0 0;
+}
+
+.botoes-modal {
+  display: flex;
+  justify-content: flex-end;
+  gap: 8px;
+  margin-top: 4px;
+}
+
+/* ===== Tabela que vira lista de cartões no celular ===== */
+.tabela {
+  width: 100%;
+  border-collapse: collapse;
+
+  th,
+  td {
+    text-align: left;
+    padding: 12px 10px;
+    border-bottom: 1px solid var(--border);
+  }
+
+  th {
+    font-size: 0.8rem;
+    text-transform: uppercase;
+    letter-spacing: 0.03em;
+    color: var(--muted);
+  }
+
+  td.acoes {
+    text-align: right;
+    white-space: nowrap;
+  }
+
+  tr:last-child td {
+    border-bottom: none;
+  }
+}
+
+@media (max-width: 720px) {
+  .tabela {
+    thead {
+      display: none;
+    }
+
+    tr {
+      display: block;
+      padding: 12px 0;
+      border-bottom: 1px solid var(--border);
+    }
+
+    tr:last-child {
+      border-bottom: none;
+    }
+
+    td {
+      display: flex;
+      justify-content: space-between;
+      gap: 12px;
+      padding: 4px 0;
+      border: none;
+
+      &::before {
+        content: attr(data-label);
+        color: var(--muted);
+        font-size: 0.85rem;
+      }
+
+      &.acoes {
+        justify-content: flex-end;
+        padding-top: 8px;
+
+        &::before {
+          content: none;
+        }
+      }
+    }
+  }
+
+  .linha-campos {
+    grid-template-columns: 1fr;
+  }
+}
+
+.vazio {
+  text-align: center;
+  color: var(--muted);
+  padding: 32px 12px;
+}
+
+.rotulo {
+  display: block;
+  font-size: 0.75rem;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  color: var(--muted);
+}
+
+/* Lista simples (contas, movimentações): linhas separadas por borda, sem cartões */
+.lista {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+
+  > li,
+  > a {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 12px;
+    padding: 12px 0;
+    border-bottom: 1px solid var(--border);
+    color: inherit;
+    text-decoration: none;
+  }
+
+  > li:last-child,
+  > a:last-child {
+    border-bottom: none;
+  }
+
+  > a:hover {
+    background: var(--surface-2);
+  }
+}
