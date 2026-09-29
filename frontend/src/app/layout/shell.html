@@ -1,0 +1,46 @@
+<div class="layout">
+  <aside class="sidebar">
+    <div class="marca">Sistema Bancário</div>
+    @if (auth.isAdmin()) {
+      <div class="area">Administração</div>
+    }
+    <nav aria-label="Menu principal">
+      @for (item of menu(); track item.rota) {
+        <a [routerLink]="item.rota" routerLinkActive="ativo"
+           [routerLinkActiveOptions]="{ exact: !!item.exato }">
+          <app-icone [nome]="item.icone" [tamanho]="18" />
+          {{ item.rotulo }}
+        </a>
+      }
+    </nav>
+
+    <div class="usuario">
+      <div class="nome">{{ auth.usuario()?.nome }}</div>
+      <div class="muted cpf num">{{ auth.usuario()?.cpf }}</div>
+      <button type="button" class="sair" (click)="auth.logout()">
+        <app-icone nome="sair" [tamanho]="16" /> Sair
+      </button>
+    </div>
+  </aside>
+
+  <header class="topo-mobile">
+    <span class="marca">Sistema Bancário</span>
+    <button type="button" class="sair" (click)="auth.logout()" aria-label="Sair">
+      <app-icone nome="sair" [tamanho]="18" />
+    </button>
+  </header>
+
+  <main>
+    <router-outlet />
+  </main>
+
+  <nav class="barra-inferior" aria-label="Menu principal">
+    @for (item of menuCelular(); track item.rota) {
+      <a [routerLink]="item.rota" routerLinkActive="ativo"
+         [routerLinkActiveOptions]="{ exact: !!item.exato }">
+        <app-icone [nome]="item.icone" [tamanho]="20" />
+        <span>{{ item.rotulo }}</span>
+      </a>
+    }
+  </nav>
+</div>
