@@ -1,0 +1,74 @@
+<section class="page">
+  <div class="page-header">
+    <div>
+      <h1>Agências</h1>
+      <p class="muted subtitulo">{{ total() | contagem: 'agência' : 'cadastrada' }}</p>
+    </div>
+    <button type="button" class="btn" (click)="abrir(null)">Nova agência</button>
+  </div>
+
+  <div class="card">
+    @if (carregando()) {
+      <p class="vazio">Carregando…</p>
+    } @else if (agencias().length === 0) {
+      <p class="vazio">Nenhuma agência cadastrada.</p>
+    } @else {
+      <table class="tabela">
+        <thead>
+          <tr><th>Número</th><th>Endereço</th><th>Cidade</th><th></th></tr>
+        </thead>
+        <tbody>
+          @for (a of agencias(); track a.id) {
+            <tr>
+              <td data-label="Número"><span class="num">{{ a.numero | agencia }}</span></td>
+              <td data-label="Endereço">{{ a.endereco }}</td>
+              <td data-label="Cidade">{{ a.cidade }}</td>
+              <td class="acoes">
+                <button type="button" class="btn secundario pequeno" (click)="abrir(a)">Editar</button>
+                <button type="button" class="btn perigo pequeno" (click)="remover(a)">Excluir</button>
+              </td>
+            </tr>
+          }
+        </tbody>
+      </table>
+      <app-paginacao [pagina]="pagina()" [totalPaginas]="totalPaginas()" (mudar)="carregar($event)" />
+    }
+  </div>
+</section>
+
+@if (modalAberto()) {
+  <app-modal [titulo]="editando() ? 'Editar agência' : 'Nova agência'" (fechar)="modalAberto.set(false)">
+    <form class="form" [formGroup]="form" (ngSubmit)="salvar()" novalidate>
+      <div class="campo">
+        <label for="numero">Número</label>
+        <input id="numero" type="number" inputmode="numeric" formControlName="numero" placeholder="1 a 9999" />
+        @if (form.controls.numero.touched && form.controls.numero.invalid) {
+          <span class="erro-campo">Número entre 1 e 9999</span>
+        }
+      </div>
+      <div class="campo">
+        <label for="endereco">Endereço</label>
+        <input id="endereco" formControlName="endereco" maxlength="100" placeholder="Rua, número - bairro" />
+        @if (form.controls.endereco.touched && form.controls.endereco.invalid) {
+          <span class="erro-campo">Informe o endereço</span>
+        }
+      </div>
+      <div class="campo">
+        <label for="cidade">Cidade</label>
+        <input id="cidade" formControlName="cidade" maxlength="25" />
+        @if (form.controls.cidade.touched && form.controls.cidade.invalid) {
+          <span class="erro-campo">Informe a cidade</span>
+        }
+      </div>
+      @if (erro()) {
+        <div class="alerta erro" role="alert">{{ erro() }}</div>
+      }
+      <div class="botoes-modal">
+        <button type="button" class="btn secundario" (click)="modalAberto.set(false)">Cancelar</button>
+        <button type="submit" class="btn" [disabled]="enviando()">
+          {{ enviando() ? 'Salvando…' : 'Salvar' }}
+        </button>
+      </div>
+    </form>
+  </app-modal>
+}
