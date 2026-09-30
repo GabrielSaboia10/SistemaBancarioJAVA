@@ -1,0 +1,38 @@
+.tela {
+  min-height: 100dvh;
+  display: grid;
+  place-items: center;
+  padding: 16px;
+}
+
+.caixa {
+  width: min(380px, 100%);
+}
+
+.marca {
+  font-weight: 600;
+  font-size: 1.1rem;
+  color: var(--primary);
+  margin-bottom: 16px;
+  text-align: center;
+}
+
+.card {
+  padding: 24px;
+
+  h1 {
+    font-size: 1.15rem;
+    margin-bottom: 18px;
+  }
+}
+
+.aviso-senha {
+  margin: -8px 0 16px;
+  font-size: 0.875rem;
+}
+
+.rodape {
+  text-align: center;
+  font-size: 0.8rem;
+  margin-top: 16px;
+}
