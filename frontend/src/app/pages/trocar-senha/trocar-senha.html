@@ -1,0 +1,47 @@
+<div class="tela">
+  <div class="caixa">
+    <div class="marca">Sistema Bancário</div>
+
+    <div class="card">
+      <h1>Crie sua senha</h1>
+      <p class="muted aviso-senha">
+        Olá, {{ auth.usuario()?.nome }}. Você entrou com uma senha temporária.
+        Para continuar, defina uma senha pessoal.
+      </p>
+
+      <form class="form" [formGroup]="form" (ngSubmit)="trocar()" novalidate>
+        <div class="campo">
+          <label for="atual">Senha temporária</label>
+          <input id="atual" type="password" formControlName="senhaAtual" autocomplete="current-password" />
+          @if (form.controls.senhaAtual.touched && form.controls.senhaAtual.invalid) {
+            <span class="erro-campo">Informe a senha temporária</span>
+          }
+        </div>
+        <div class="campo">
+          <label for="nova">Nova senha</label>
+          <input id="nova" type="password" formControlName="novaSenha" autocomplete="new-password" />
+          @if (form.controls.novaSenha.touched && form.controls.novaSenha.invalid) {
+            <span class="erro-campo">Mínimo de 6 caracteres</span>
+          }
+        </div>
+        <div class="campo">
+          <label for="confirmacao">Confirme a nova senha</label>
+          <input id="confirmacao" type="password" formControlName="confirmacao" autocomplete="new-password" />
+          @if (form.controls.confirmacao.touched && form.hasError('diferentes')) {
+            <span class="erro-campo">As senhas não conferem</span>
+          }
+        </div>
+
+        @if (erro()) {
+          <div class="alerta erro" role="alert">{{ erro() }}</div>
+        }
+
+        <button type="submit" class="btn bloco" [disabled]="enviando()">
+          {{ enviando() ? 'Salvando…' : 'Definir senha' }}
+        </button>
+      </form>
+    </div>
+
+    <p class="muted rodape"><a href="" (click)="$event.preventDefault(); auth.logout()">Sair</a></p>
+  </div>
+</div>
