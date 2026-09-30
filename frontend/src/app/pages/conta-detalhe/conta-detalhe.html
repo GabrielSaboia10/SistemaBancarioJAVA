@@ -1,0 +1,124 @@
+<section class="page">
+  <a routerLink="/" class="voltar"><app-icone nome="voltar" [tamanho]="16" /> Voltar</a>
+
+  @if (erroCarregar()) {
+    <div class="alerta erro">{{ erroCarregar() }}</div>
+  }
+
+  @if (conta(); as c) {
+    <div class="card resumo">
+      <div class="identificacao">
+        <div>
+          <h1>Conta corrente <span class="num">{{ c.numero }}</span></h1>
+          <div class="muted">{{ c.correntista.nome }} · {{ c.agencia.numero | agencia }} — {{ c.agencia.cidade }}</div>
+        </div>
+      </div>
+      <div class="valores">
+        <div>
+          <span class="rotulo">Saldo</span>
+          <strong class="saldo num" [class.negativo]="c.saldo < 0">{{ c.saldo | currency }}</strong>
+        </div>
+        <div>
+          <span class="rotulo">Cheque especial</span>
+          <span class="num">{{ c.limiteChequeEspecial | currency }}</span>
+        </div>
+        <div>
+          <span class="rotulo">Disponível</span>
+          <span class="num">{{ c.saldoDisponivel | currency }}</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="abas" role="tablist">
+        <button type="button" role="tab" [class.ativa]="operacao() === 'depositar'"
+                [attr.aria-selected]="operacao() === 'depositar'" (click)="escolher('depositar')">Depositar</button>
+        <button type="button" role="tab" [class.ativa]="operacao() === 'sacar'"
+                [attr.aria-selected]="operacao() === 'sacar'" (click)="escolher('sacar')">Sacar</button>
+        <button type="button" role="tab" [class.ativa]="operacao() === 'transferir'"
+                [attr.aria-selected]="operacao() === 'transferir'" (click)="escolher('transferir')">Transferir</button>
+      </div>
+
+      <form class="form" [formGroup]="form" (ngSubmit)="confirmar()" novalidate>
+        @if (operacao() === 'transferir') {
+          <div class="campo">
+            <label for="destino">Número da conta de destino</label>
+            <input id="destino" type="number" inputmode="numeric" formControlName="numeroContaDestino"
+                   placeholder="Ex.: 2001" />
+            @if (form.controls.numeroContaDestino.touched && form.controls.numeroContaDestino.invalid) {
+              <span class="erro-campo">Informe a conta de destino</span>
+            }
+          </div>
+        }
+
+        <div class="campo">
+          <label for="valor">Valor (R$)</label>
+          <input id="valor" type="number" inputmode="decimal" step="0.01" min="0.01"
+                 formControlName="valor" placeholder="0,00" />
+          @if (form.controls.valor.touched && form.controls.valor.invalid) {
+            <span class="erro-campo">Informe um valor maior que zero</span>
+          }
+        </div>
+
+        @if (erro()) {
+          <div class="alerta erro" role="alert">{{ erro() }}</div>
+        }
+
+        <button type="submit" class="btn bloco" [disabled]="enviando()">
+          {{ enviando() ? 'Processando…' : 'Confirmar' }}
+        </button>
+      </form>
+    </div>
+
+    <div class="card">
+      <div class="page-header">
+        <h2>Extrato</h2>
+        <button type="button" class="btn secundario pequeno" [disabled]="exportando()" (click)="exportarCsv()">
+          {{ exportando() ? 'Gerando…' : 'Exportar (Excel)' }}
+        </button>
+      </div>
+
+      <form class="filtro-periodo" (submit)="$event.preventDefault(); filtrarPeriodo(inicio.value, fim.value)">
+        <div class="campo">
+          <label for="de">De</label>
+          <input id="de" #inicio type="date" [value]="de()" />
+        </div>
+        <div class="campo">
+          <label for="ate">Até</label>
+          <input id="ate" #fim type="date" [value]="ate()" />
+        </div>
+        <button type="submit" class="btn secundario">Filtrar</button>
+        @if (de() || ate()) {
+          <button type="button" class="btn secundario" (click)="inicio.value = ''; fim.value = ''; limparPeriodo()">Limpar</button>
+        }
+      </form>
+
+      @if (movimentacoes().length === 0) {
+        <p class="vazio">{{ de() || ate() ? 'Nenhuma movimentação no período.' : 'Nenhuma movimentação ainda.' }}</p>
+      } @else {
+        <ul class="lista extrato">
+          @for (m of movimentacoes(); track m.id) {
+            <li>
+              <div>
+                <strong>{{ rotulo[m.tipo] }}</strong>
+                <span class="muted pequeno">
+                  {{ m.dataHora | date: 'dd/MM/yyyy HH:mm' }}
+                  @if (m.numeroContaContraparte) {
+                    · {{ m.tipo === 'TRANSFERENCIA_ENVIADA' ? 'para' : 'de' }} conta {{ m.numeroContaContraparte }}
+                  }
+                </span>
+              </div>
+              <div class="valores">
+                <strong class="num" [class.positivo]="ehEntrada(m.tipo)" [class.negativo]="!ehEntrada(m.tipo)">
+                  {{ ehEntrada(m.tipo) ? '+' : '−' }} {{ m.valor | currency }}
+                </strong>
+                <span class="muted pequeno num">Saldo {{ m.saldoApos | currency }}</span>
+              </div>
+            </li>
+          }
+        </ul>
+        <app-paginacao [pagina]="pagina()" [totalPaginas]="totalPaginas()" (mudar)="carregarExtrato($event)" />
+      }
+    </div>
+  }
+</section>
