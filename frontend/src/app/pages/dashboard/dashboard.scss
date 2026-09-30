@@ -1,0 +1,66 @@
+.indicadores {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  padding: 0;
+
+  > a,
+  > div {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+    padding: 16px 20px;
+    color: inherit;
+    text-decoration: none;
+    border-right: 1px solid var(--border);
+
+    &:last-child {
+      border-right: none;
+    }
+  }
+
+  > a:hover {
+    background: var(--surface-2);
+  }
+
+  strong {
+    font-size: 1.35rem;
+    font-weight: 600;
+  }
+}
+
+.cabecalho-card {
+  margin-bottom: 8px;
+}
+
+.saldo-total {
+  font-size: 1.75rem;
+  font-weight: 600;
+}
+
+.lista .direita {
+  text-align: right;
+}
+
+.pequeno {
+  font-size: 0.8rem;
+}
+
+@media (max-width: 720px) {
+  .indicadores {
+    grid-template-columns: 1fr 1fr;
+
+    > a,
+    > div {
+      border-right: none;
+      border-bottom: 1px solid var(--border);
+    }
+
+    > :nth-child(odd) {
+      border-right: 1px solid var(--border);
+    }
+
+    > :nth-last-child(-n + 2) {
+      border-bottom: none;
+    }
+  }
+}
