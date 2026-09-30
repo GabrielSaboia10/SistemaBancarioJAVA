@@ -1,0 +1,104 @@
+<section class="page">
+  @if (erro()) {
+    <div class="alerta erro">{{ erro() }}</div>
+  }
+
+  @if (auth.isAdmin()) {
+    <div>
+      <h1>Painel</h1>
+      <p class="muted subtitulo">Visão geral do sistema bancário</p>
+    </div>
+
+    <div class="card indicadores">
+      <a routerLink="/admin/pessoas">
+        <span class="rotulo">Clientes</span>
+        <strong class="num">{{ stats()?.totalClientes ?? '—' }}</strong>
+      </a>
+      <a routerLink="/admin/agencias">
+        <span class="rotulo">Agências</span>
+        <strong class="num">{{ stats()?.totalAgencias ?? '—' }}</strong>
+      </a>
+      <a routerLink="/admin/contas">
+        <span class="rotulo">Contas</span>
+        <strong class="num">{{ stats()?.totalContas ?? '—' }}</strong>
+      </a>
+      <div>
+        <span class="rotulo">Saldo em custódia</span>
+        <strong class="num">{{ stats() ? (stats()!.saldoTotal | currency) : '—' }}</strong>
+      </div>
+    </div>
+
+    <div class="card">
+      <h2 class="cabecalho-card">Acesso rápido</h2>
+      <div class="toolbar">
+        <a class="btn secundario" routerLink="/admin/pessoas">Gerenciar clientes</a>
+        <a class="btn secundario" routerLink="/admin/agencias">Gerenciar agências</a>
+        <a class="btn secundario" routerLink="/admin/contas">Gerenciar contas</a>
+        <a class="btn secundario" routerLink="/admin/auditoria">Auditoria</a>
+        <a class="btn" routerLink="/operacoes">Operações bancárias</a>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="page-header cabecalho-card">
+        <h2>Contas</h2>
+        <a routerLink="/admin/contas">Gerenciar contas</a>
+      </div>
+      @if (carregando()) {
+        <p class="muted">Carregando…</p>
+      } @else if (contas().length === 0) {
+        <p class="vazio">Nenhuma conta aberta.</p>
+      } @else {
+        <table class="tabela">
+          <thead>
+            <tr><th>Conta</th><th>Correntista</th><th>Agência</th><th>Saldo</th></tr>
+          </thead>
+          <tbody>
+            @for (c of contas(); track c.id) {
+              <tr>
+                <td data-label="Conta"><a [routerLink]="['/contas', c.id]" class="num">{{ c.numero }}</a></td>
+                <td data-label="Correntista">{{ c.correntista.nome }}</td>
+                <td data-label="Agência" class="num">{{ c.agencia.numero | agencia }}</td>
+                <td data-label="Saldo" class="num" [class.negativo]="c.saldo < 0">{{ c.saldo | currency }}</td>
+              </tr>
+            }
+          </tbody>
+        </table>
+      }
+    </div>
+  } @else {
+    <div class="page-header">
+      <div>
+        <span class="rotulo">Saldo total</span>
+        <div class="saldo-total num" [class.negativo]="(stats()?.saldoTotal ?? 0) < 0">
+          {{ stats() ? (stats()!.saldoTotal | currency) : '—' }}
+        </div>
+      </div>
+      <a class="btn" routerLink="/operacoes">Realizar operações</a>
+    </div>
+
+    <div class="card">
+      <h2 class="cabecalho-card">Minhas contas</h2>
+      @if (carregando()) {
+        <p class="muted">Carregando…</p>
+      } @else if (contas().length === 0) {
+        <p class="vazio">Você ainda não tem contas. Procure uma agência.</p>
+      } @else {
+        <div class="lista">
+          @for (c of contas(); track c.id) {
+            <a [routerLink]="['/contas', c.id]">
+              <div>
+                <div>Conta corrente <span class="num">{{ c.numero }}</span></div>
+                <div class="muted pequeno">{{ c.agencia.numero | agencia }} — {{ c.agencia.cidade }}</div>
+              </div>
+              <div class="direita">
+                <div class="num" [class.negativo]="c.saldo < 0">{{ c.saldo | currency }}</div>
+                <div class="muted pequeno num">Limite disponível {{ c.saldoDisponivel | currency }}</div>
+              </div>
+            </a>
+          }
+        </div>
+      }
+    </div>
+  }
+</section>
