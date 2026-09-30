@@ -1,0 +1,94 @@
+.voltar {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  width: fit-content;
+  text-decoration: none;
+}
+
+.resumo {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+
+  h1 {
+    font-size: 1.15rem;
+  }
+
+  .valores {
+    display: flex;
+    gap: 32px;
+    flex-wrap: wrap;
+    padding-top: 14px;
+    border-top: 1px solid var(--border);
+
+    > div {
+      display: flex;
+      flex-direction: column;
+      gap: 2px;
+    }
+  }
+
+  .saldo {
+    font-size: 1.5rem;
+    font-weight: 600;
+  }
+}
+
+.abas {
+  display: flex;
+  gap: 24px;
+  margin-bottom: 18px;
+  border-bottom: 1px solid var(--border);
+
+  button {
+    padding: 0 0 10px;
+    border: none;
+    border-bottom: 2px solid transparent;
+    margin-bottom: -1px;
+    background: none;
+    color: var(--muted);
+    font: inherit;
+    cursor: pointer;
+
+    &.ativa {
+      color: var(--text);
+      font-weight: 500;
+      border-bottom-color: var(--primary);
+    }
+  }
+}
+
+.filtro-periodo {
+  display: flex;
+  align-items: flex-end;
+  flex-wrap: wrap;
+  gap: 10px;
+  margin: 12px 0 4px;
+
+  .campo {
+    flex: 1 1 140px;
+  }
+}
+
+.extrato {
+  margin-top: 8px;
+
+  li > div {
+    display: flex;
+    flex-direction: column;
+  }
+
+  .valores {
+    align-items: flex-end;
+    text-align: right;
+  }
+
+  strong {
+    font-weight: 500;
+  }
+}
+
+.pequeno {
+  font-size: 0.8rem;
+}
