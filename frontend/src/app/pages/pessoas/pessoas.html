@@ -1,0 +1,127 @@
+<section class="page">
+  <div class="page-header">
+    <div>
+      <h1>Clientes</h1>
+      <p class="muted subtitulo">{{ total() | contagem: 'cliente' : (busca() ? 'encontrado' : 'cadastrado') }}</p>
+    </div>
+    <button type="button" class="btn" (click)="abrirNovo()">Novo cliente</button>
+  </div>
+
+  <div class="card">
+    <div class="campo">
+      <label for="busca">Buscar</label>
+      <input id="busca" type="search" placeholder="Nome ou CPF" (input)="buscar($event)" />
+    </div>
+
+    @if (carregando()) {
+      <p class="vazio">Carregando…</p>
+    } @else if (pessoas().length === 0) {
+      <p class="vazio">{{ busca() ? 'Nenhum cliente encontrado.' : 'Nenhum cliente cadastrado.' }}</p>
+    } @else {
+      <table class="tabela">
+        <thead>
+          <tr><th>Nome</th><th>CPF</th><th>Idade</th><th>Cadastro</th><th>Acesso</th><th></th></tr>
+        </thead>
+        <tbody>
+          @for (p of pessoas(); track p.id) {
+            <tr>
+              <td data-label="Nome"><strong>{{ p.nome }}</strong></td>
+              <td data-label="CPF" class="num">{{ p.cpf }}</td>
+              <td data-label="Idade">{{ p.idade }} anos</td>
+              <td data-label="Cadastro" class="num">{{ p.criadoEm | date: 'dd/MM/yyyy' }}</td>
+              <td data-label="Acesso">
+                @if (p.ativo === false) {
+                  <span class="status bloqueado">Bloqueado</span>
+                } @else if (p.senhaTemporaria) {
+                  <span class="status pendente">Senha temporária</span>
+                } @else if (p.ativo) {
+                  <span class="status ativo">Ativo</span>
+                } @else {
+                  <span class="muted">—</span>
+                }
+              </td>
+              <td class="acoes">
+                <button type="button" class="btn secundario pequeno" (click)="abrirEdicao(p)">Editar</button>
+                @if (p.ativo !== null) {
+                  <button type="button" class="btn secundario pequeno" (click)="redefinirSenha(p)">Nova senha</button>
+                  <button type="button" class="btn secundario pequeno" (click)="alternarBloqueio(p)">
+                    {{ p.ativo ? 'Bloquear' : 'Liberar' }}
+                  </button>
+                }
+                <button type="button" class="btn perigo pequeno" (click)="remover(p)">Excluir</button>
+              </td>
+            </tr>
+          }
+        </tbody>
+      </table>
+      <app-paginacao [pagina]="pagina()" [totalPaginas]="totalPaginas()" (mudar)="carregar($event)" />
+    }
+  </div>
+</section>
+
+@if (modalAberto()) {
+  <app-modal [titulo]="editando() ? 'Editar cliente' : 'Novo cliente'" (fechar)="modalAberto.set(false)">
+    <form class="form" [formGroup]="form" (ngSubmit)="salvar()" novalidate>
+      <div class="campo">
+        <label for="cpf">CPF</label>
+        <input id="cpf" formControlName="cpf" inputmode="numeric" placeholder="000.000.000-00"
+               maxlength="14" (input)="aoDigitarCpf($event)" />
+        @if (editando()) {
+          <span class="dica">O CPF é o login do cliente e não pode ser alterado.</span>
+        }
+        @if (form.controls.cpf.touched && form.controls.cpf.invalid) {
+          <span class="erro-campo">Informe um CPF com 11 dígitos</span>
+        }
+      </div>
+      <div class="campo">
+        <label for="nome">Nome</label>
+        <input id="nome" formControlName="nome" maxlength="40" autocomplete="off" placeholder="Nome completo" />
+        @if (form.controls.nome.touched && form.controls.nome.invalid) {
+          <span class="erro-campo">Informe o nome (até 40 caracteres)</span>
+        }
+      </div>
+      <div class="campo">
+        <label for="idade">Idade</label>
+        <input id="idade" type="number" inputmode="numeric" formControlName="idade" min="0" max="150" />
+        @if (form.controls.idade.touched && form.controls.idade.invalid) {
+          <span class="erro-campo">Idade entre 0 e 150</span>
+        }
+      </div>
+      @if (!editando()) {
+        <div class="alerta aviso">
+          O cliente recebe acesso ao sistema com uma senha temporária, exibida ao concluir o cadastro.
+        </div>
+      }
+      @if (erro()) {
+        <div class="alerta erro" role="alert">{{ erro() }}</div>
+      }
+      <div class="botoes-modal">
+        <button type="button" class="btn secundario" (click)="modalAberto.set(false)">Cancelar</button>
+        <button type="submit" class="btn" [disabled]="enviando()">
+          {{ enviando() ? 'Salvando…' : 'Salvar' }}
+        </button>
+      </div>
+    </form>
+  </app-modal>
+}
+
+@if (senhaCriada(); as s) {
+  <app-modal [titulo]="s.redefinida ? 'Nova senha gerada' : 'Cadastro concluído'" (fechar)="senhaCriada.set(null)">
+    <div class="form">
+      @if (s.redefinida) {
+        <p>Foi gerada uma nova senha temporária para <strong>{{ s.nome }}</strong>. As sessões abertas foram encerradas.</p>
+      } @else {
+        <p>O acesso de <strong>{{ s.nome }}</strong> foi criado.</p>
+      }
+      <div class="alerta sucesso">
+        Login: <strong class="num">{{ s.cpf }}</strong><br />
+        Senha temporária: <strong class="num">{{ s.senha }}</strong>
+      </div>
+      <p class="muted">Anote e repasse ao cliente: esta senha não será exibida novamente.
+        No primeiro acesso, o sistema vai pedir que ele crie uma senha pessoal.</p>
+      <div class="botoes-modal">
+        <button type="button" class="btn" (click)="senhaCriada.set(null)">Entendi</button>
+      </div>
+    </div>
+  </app-modal>
+}
