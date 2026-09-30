@@ -1,0 +1,90 @@
+<section class="page">
+  <div>
+    <h1>Operações</h1>
+    <p class="muted subtitulo">Depósitos, saques e transferências</p>
+  </div>
+
+  <div class="card conteudo">
+    <div class="abas" role="tablist">
+      @for (op of operacoes; track op) {
+        <button type="button" role="tab" [class.ativa]="operacao() === op"
+                [attr.aria-selected]="operacao() === op" (click)="escolher(op)">{{ rotulos[op] }}</button>
+      }
+    </div>
+
+    @if (resultado(); as r) {
+      <div class="alerta" [class.sucesso]="r.tipo === 'sucesso'" [class.erro]="r.tipo === 'erro'" role="status">
+        {{ r.texto }}
+      </div>
+    }
+
+    @if (carregando()) {
+      <p class="muted">Carregando contas…</p>
+    } @else if (!auth.isAdmin() && contasDoCliente().length === 0) {
+      <p class="vazio">Nenhuma conta vinculada ao seu usuário.</p>
+    } @else {
+      <form class="form" [formGroup]="form" (ngSubmit)="confirmar()" novalidate>
+        <div class="campo">
+          <label for="origem">{{ operacao() === 'transferir' ? 'Conta de origem' : 'Conta' }}</label>
+          @if (auth.isAdmin()) {
+            <app-busca-select idCampo="origem" [buscar]="buscarContas" [rotulo]="rotuloConta" [valor]="origem()"
+                              placeholder="Número da conta ou nome do titular" (selecionado)="selecionarOrigem($event)" />
+          } @else {
+            <select id="origem" (change)="escolherContaDoCliente($event)">
+              <option value="" [selected]="!origem()" disabled>Selecione a conta…</option>
+              @for (c of contasDoCliente(); track c.id) {
+                <option [value]="c.id" [selected]="origem()?.id === c.id">{{ c.numero }} ({{ c.saldo | currency }})</option>
+              }
+            </select>
+          }
+          @if (tentouEnviar() && !origem()) {
+            <span class="erro-campo">Selecione a conta</span>
+          }
+        </div>
+
+        @if (origem(); as o) {
+          <div class="resumo-conta">
+            <span>Saldo <strong class="num" [class.positivo]="o.saldo >= 0" [class.negativo]="o.saldo < 0">{{ o.saldo | currency }}</strong></span>
+            <span>Limite <strong class="num">{{ o.limiteChequeEspecial | currency }}</strong></span>
+            <span>Disponível <strong class="num">{{ o.saldoDisponivel | currency }}</strong></span>
+            <span class="muted">{{ o.agencia.numero | agencia }} — {{ o.agencia.cidade }}</span>
+          </div>
+        }
+
+        @if (operacao() === 'transferir') {
+          <div class="campo">
+            <label for="destino">Conta de destino</label>
+            @if (auth.isAdmin()) {
+              <app-busca-select idCampo="destino" [buscar]="buscarDestinos" [rotulo]="rotuloConta" [valor]="destino()"
+                                placeholder="Número da conta ou nome do titular" (selecionado)="selecionarDestino($event)" />
+            } @else {
+              <input id="destino" type="number" inputmode="numeric" formControlName="numeroContaDestino"
+                     placeholder="Número da conta de destino" />
+            }
+            @if (form.controls.numeroContaDestino.touched && form.controls.numeroContaDestino.invalid) {
+              <span class="erro-campo">Informe a conta de destino</span>
+            }
+          </div>
+        }
+
+        <div class="campo">
+          <label for="valor">Valor (R$)</label>
+          <input id="valor" type="number" inputmode="decimal" step="0.01" min="0.01"
+                 formControlName="valor" placeholder="0,00" />
+          @if (form.controls.valor.touched && form.controls.valor.invalid) {
+            <span class="erro-campo">Informe um valor maior que zero</span>
+          }
+        </div>
+
+        <div class="acoes-form">
+          @if (origem(); as o) {
+            <a [routerLink]="['/contas', o.id]">Ver extrato</a>
+          }
+          <button type="submit" class="btn" [disabled]="enviando()">
+            {{ enviando() ? 'Processando…' : 'Confirmar ' + rotulos[operacao()].toLowerCase() }}
+          </button>
+        </div>
+      </form>
+    }
+  </div>
+</section>
