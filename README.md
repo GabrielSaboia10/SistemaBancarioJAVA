@@ -1,8 +1,10 @@
 # Sistema Bancário
 
-Sistema bancário com **API REST em Java (Spring Boot)** e **site em Angular**, com área do cliente e painel administrativo.
+[![CI](https://github.com/GabrielSaboia10/SistemaBancarioJAVA/actions/workflows/ci.yml/badge.svg)](https://github.com/GabrielSaboia10/SistemaBancarioJAVA/actions/workflows/ci.yml)
 
-Começou como um projeto desktop em Java Swing (ainda disponível em [`SistemaBancarioJAVA/`](SistemaBancarioJAVA/)) e evoluiu para uma aplicação web completa.
+Sistema bancário com **API REST em Java (Spring Boot)**, **site em Angular** e **app de celular em React Native (Expo)**. Os dois usam a mesma API.
+
+Começou como um projeto desktop em Java Swing (ainda disponível em [`desktop-swing/`](desktop-swing/)) e evoluiu para uma aplicação web completa.
 
 ## Funcionalidades
 
@@ -21,8 +23,8 @@ Começou como um projeto desktop em Java Swing (ainda disponível em [`SistemaBa
 - Auditoria: registro de quem fez cada ação administrativa e quando
 
 **Celular**
-- O site tem layout para celular e pode ser instalado na tela inicial (PWA)
-- App React Native (Expo) em desenvolvimento
+- App React Native (Expo) com as funções de cliente e de administrador
+- O site também tem layout para celular e pode ser instalado na tela inicial (PWA)
 
 ## Tecnologias
 
@@ -32,8 +34,9 @@ Começou como um projeto desktop em Java Swing (ainda disponível em [`SistemaBa
 | Banco | PostgreSQL (produção) · H2 (desenvolvimento e testes) |
 | Cache | Redis (rate limit compartilhado entre instâncias) |
 | Frontend | Angular 22 (standalone, signals, zoneless), Reactive Forms, PWA |
-| Testes | JUnit 5 + MockMvc (backend) · Vitest (frontend) |
-| Infra | Dockerfiles do backend e do frontend (nginx) |
+| Mobile | React Native 0.86, Expo 57, Expo Router, SecureStore |
+| Testes | JUnit 5 + MockMvc (backend) · Vitest (frontend) · Jest + Testing Library (mobile) |
+| Infra | Docker Compose + nginx · GitHub Actions |
 
 ## Segurança
 
@@ -92,15 +95,29 @@ Usuários de exemplo, criados só no perfil `dev`:
 - **Testar no celular:** rode `npm run start:celular` e acesse `http://IP-DO-SEU-PC:4200` pelo celular, na mesma rede Wi-Fi.
 - **Rate limit no Redis:** rode a API com `RATE_LIMIT_ARMAZENAMENTO=redis` (e `REDIS_HOST`/`REDIS_PORT`, padrão `localhost:6379`).
 
+## Como rodar com Docker
+
+```bash
+cp .env.example .env    # e troque as senhas e o JWT_SECRET
+docker compose up --build
+```
+
+Acesse http://localhost:8080. O nginx serve o Angular e encaminha `/api` para o Spring, que usa PostgreSQL e Redis.
+
+## App de celular
+
+Instale o **Expo Go** no celular, suba a API e rode `cd mobile && npm install && npm start`. Leia o QR code com o Expo Go. O celular precisa estar na mesma rede Wi-Fi do PC. Detalhes em [`mobile/README.md`](mobile/README.md).
+
 ## Testes
 
 ```bash
 cd backend && ./mvnw test     # 32 testes: regras da conta, CPF, permissões, senha temporária, bloqueio,
                               # auditoria, busca, extrato/CSV, rate limit (memória e Redis), concorrência
 cd frontend && npm test       # 26 testes: login, guards, refresh de token, busca, operações, formatadores
+cd mobile && npm test         # 16 testes: renovação de token, erros da API, login, formatadores
 ```
 
-O teste do Redis é pulado automaticamente se não houver um Redis em `localhost:6379`.
+O teste do Redis é pulado automaticamente se não houver um Redis em `localhost:6379`. No CI (GitHub Actions) ele roda com um Redis de verdade.
 
 ## Estrutura
 
@@ -121,7 +138,11 @@ frontend/                site em Angular + PWA
   src/app/layout/        menu lateral (desktop) e barra inferior (celular)
   src/app/pages/         telas
   src/app/shared/        componentes reutilizáveis (busca, modal, paginação, ícones)
-SistemaBancarioJAVA/     versão desktop original (Java Swing, MVC + DAO)
+mobile/                  app React Native (Expo)
+  src/app/               telas (rotas do Expo Router)
+  src/api/               cliente HTTP, endpoints e tipos
+desktop-swing/           versões desktop originais (Java Swing, MVC + DAO)
+.github/workflows/       CI: testes do backend, do frontend e do mobile, build das imagens Docker
 ```
 
 ## Regras de negócio
