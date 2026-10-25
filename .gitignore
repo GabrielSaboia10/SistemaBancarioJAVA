@@ -9,34 +9,32 @@ bin/
 
 # Build output
 out/
+dist/
+build/
+backend/target/
+
+# Banco H2 local do perfil dev
+backend/data/
+
+# Arquivos de dados da versão desktop (Swing)
+dados/
+*.dat
+
+# Node.js
+node_modules/
+npm-debug.log*
+
+# IDE
+.idea/
 
 # OS files
 .DS_Store
 Thumbs.db
 
-# Data files
-dados/
-
-# Node.js
-node_modules/
-npm-debug.log*
-yarn-debug.log*
-yarn-error.log*
-
 # Environment variables
 .env
 .env.local
 .env.*.local
-
-# Build output
-dist/
-build/
-
-# Package lock (root only — packages keep their own)
-package-lock.json
-
-# Prisma generated
-packages/api/src/generated/
 
 # Logs
 *.log
