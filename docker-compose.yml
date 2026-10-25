@@ -1,38 +1,54 @@
-version: '3.8'
-
 services:
   postgres:
-    image: postgres:16-alpine
-    container_name: banco_postgres
+    image: postgres:17-alpine
     environment:
       POSTGRES_DB: bancodb
-      POSTGRES_USER: banco
-      POSTGRES_PASSWORD: banco123
-    ports:
-      - "5432:5432"
+      POSTGRES_USER: ${DATABASE_USER}
+      POSTGRES_PASSWORD: ${DATABASE_PASSWORD}
     volumes:
       - postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${DATABASE_USER} -d bancodb"]
+      interval: 5s
+      retries: 10
     restart: unless-stopped
 
-  api:
-    build: ./packages/api
-    container_name: banco_api
-    ports:
-      - "3001:3001"
+  # Contadores do rate limit compartilhados (permite rodar várias instâncias da API)
+  redis:
+    image: redis:7-alpine
+    command: ["redis-server", "--save", "", "--appendonly", "no"]
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 5s
+      retries: 10
+    restart: unless-stopped
+
+  backend:
+    build: ./backend
     environment:
-      DATABASE_URL: postgresql://banco:banco123@postgres:5432/bancodb
-      PORT: 3001
+      SPRING_PROFILES_ACTIVE: prod
+      DATABASE_URL: jdbc:postgresql://postgres:5432/bancodb
+      DATABASE_USER: ${DATABASE_USER}
+      DATABASE_PASSWORD: ${DATABASE_PASSWORD}
+      JWT_SECRET: ${JWT_SECRET}
+      ADMIN_CPF: ${ADMIN_CPF}
+      ADMIN_SENHA: ${ADMIN_SENHA}
+      RATE_LIMIT_ARMAZENAMENTO: redis
+      REDIS_HOST: redis
+      CORS_ORIGINS: ${CORS_ORIGINS:-http://localhost:8080}
     depends_on:
-      - postgres
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
     restart: unless-stopped
 
-  web:
-    build: ./packages/web
-    container_name: banco_web
+  frontend:
+    build: ./frontend
     ports:
-      - "3000:80"
+      - "8080:80"
     depends_on:
-      - api
+      - backend
     restart: unless-stopped
 
 volumes:
